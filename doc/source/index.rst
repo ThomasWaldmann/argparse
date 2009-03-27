@@ -4,8 +4,8 @@ Documentation
 .. toctree::
    :maxdepth: 2
 
-   argparse-vs-optparse
    overview
+   argparse-vs-optparse
    api-docs
 
 
