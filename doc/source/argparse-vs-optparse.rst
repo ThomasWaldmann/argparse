@@ -11,11 +11,11 @@ The optparse module already comes in the Python standard library. So why would y
 
 * The argparse module produces more informative usage messages, including command-line usage determined from your arguments, and help messages for both positional and optional arguments. The optparse module requires you to write your own usage string, and has no way to display help for positional arguments.
 
-* The argparse module supports action that consume a variable number of command-line args, while optparse requires that the exact number of arguments (e.g. 1, 2, or 3) be known in advance.  (See nargs_.)
+* The argparse module supports action that consume a variable number of command-line args, while optparse requires that the exact number of arguments (e.g. 1, 2, or 3) be known in advance.  (See :meth:`add_argument`.)
 
 * The argparse module supports parsers that dispatch to sub-commands, while optparse requires setting ``allow_interspersed_args`` and doing the parser dispatch manually. (See :meth:`add_subparsers`.)
 
-* The argparse module allows the type_ and action_ parameters to :meth:`add_argument` to be specified with simple callables, while optparse requires hacking class attributes like ``STORE_ACTIONS`` or ``CHECK_METHODS`` to get proper argument checking. (See type_ and action_).
+* The argparse module allows the ``type`` and ``action`` parameters to :meth:`add_argument` to be specified with simple callables, while optparse requires hacking class attributes like ``STORE_ACTIONS`` or ``CHECK_METHODS`` to get proper argument checking. (See :meth:`add_argument`).
 
 The following sections discuss some of these points and a few of the other advantages of the argparse module.
 
@@ -40,7 +40,7 @@ The argparse module supports optional and positional arguments in a manner simil
 
 Some of the important differences illustrated here:
 
-* ArgumentParser objects use an :meth:`add_argument` method instead of ``add_option``. The APIs are quite similar to the optparse ones, and support the keyword arguments action_, dest_, nargs_, const_, default_, type_, choices_, help_ and metavar_ in much the same way that optparse does (with differences noted below).
+* ArgumentParser objects use an :meth:`add_argument` method instead of ``add_option``. The APIs are quite similar to the optparse ones, and support the keyword arguments ``action``, ``dest``, ``nargs``, ``const``, ``default``, ``type``, ``choices``, ``help`` and ``metavar`` in much the same way that optparse does (with differences noted below).
     
 * The :meth:`parse_args` method returns a single namespace object, not a ``(namespace, remaining_args)`` pair. What used to be remaining arguments with optparse are now taken care of by argparse's positional arguments.
 
@@ -88,7 +88,7 @@ With optparse, if you don't supply a usage string, you typically end up with ``"
 More nargs options
 ~~~~~~~~~~~~~~~~~~
 
-As you may have noticed in the previous section, the argparse module adds a number of useful new specifiers for the nargs_ keyword argument::
+As you may have noticed in the previous section, the argparse module adds a number of useful new specifiers for the ``nargs`` keyword argument::
 
   >>> parser = argparse.ArgumentParser(prog='PROG')
   >>> parser.add_argument('-x', nargs='?', const='X')
@@ -146,7 +146,7 @@ Note that in addition to all the usual arguments that are valid to the :class:`A
 Callable types
 ~~~~~~~~~~~~~~
 
-The argparse module allows any callable that takes a single string argument as the value for the type_ keyword argument::
+The argparse module allows any callable that takes a single string argument as the value for the ``type`` keyword argument::
 
   >>> parser = argparse.ArgumentParser()
   >>> parser.add_argument('x', type=float)
@@ -178,13 +178,13 @@ The argparse module allows a more easily extensible means of providing new types
   >>> parser.parse_args('42 -x 0'.split())
   Namespace(x='xfoox(0)', y='fyoyo(42)')
 
-The ArgumentParser constructs your action object when :meth:`add_argument` is called, and passes on the arguments it received. Thus if you need more than the usual dest_, nargs_, etc., simply declare it in your ``__init__()`` method and provide a value for it in the corresponding call.
+The ArgumentParser constructs your action object when :meth:`add_argument` is called, and passes on the arguments it received. Thus if you need more than the usual ``dest``, ``nargs``, etc., simply declare it in your ``__init__()`` method and provide a value for it in the corresponding call.
 
 
 More choices
 ~~~~~~~~~~~~
 
-In optparse, the ``choices=`` keyword argument accepts only a list of strings. The argparse module allows choices_ to provide any container object, and tests the arg string values against this container after they have been type-converted::
+In optparse, the ``choices`` keyword argument accepts only a list of strings. The argparse module allows ``choices`` to provide any container object, and tests the arg string values against this container after they have been type-converted::
 
   >>> parser = argparse.ArgumentParser(prog='PROG')
   >>> parser.add_argument('-x', nargs='+', choices='abc')
@@ -214,7 +214,7 @@ The argparse module allows you to construct simple inheritance hierarchies of pa
   >>> foo_bar_baz_parser.parse_args('--foo 1 XXX --baz 2'.split())
   Namespace(bar='XXX', baz='2', foo='1')
 
-If you end up with a lot of parsers (as may happen if you make extensive use of subparsers), the parents_ argument can help dramatically reduce the code duplication.
+If you end up with a lot of parsers (as may happen if you make extensive use of subparsers), the ``parents`` argument can help dramatically reduce the code duplication.
 
 
 Suppress anything
@@ -254,9 +254,9 @@ A partial upgrade path from optparse to argparse:
 
 * Replace ``options, args = parser.parse_args()`` with ``args = parser.parse_args()`` and add additional :meth:`add_argument` calls for the positional arguments.
 
-* Replace callback actions and the ``callback_*`` keyword arguments with type_ or action_ arguments.
+* Replace callback actions and the ``callback_*`` keyword arguments with ``type`` or ``action`` arguments.
 
-* Replace string names for type_ keyword arguments with the corresponding type objects (e.g. int, float, complex, etc).
+* Replace string names for ``type`` keyword arguments with the corresponding type objects (e.g. int, float, complex, etc).
 
 * Replace ``Values`` with ``Namespace`` and ``OptionError/OptionValueError`` with ``ArgumentError``.
 
