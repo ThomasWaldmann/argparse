@@ -1,0 +1,4 @@
+include README.txt
+include doc/*.html
+include doc/*.js
+recursive-include doc/_static *
