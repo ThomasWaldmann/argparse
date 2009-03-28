@@ -8,3 +8,4 @@ API documentation
     add_argument
     parse_args
     other-methods
+    other-utilities

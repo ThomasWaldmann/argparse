@@ -1,10 +1,11 @@
 The add_argument() method
 =========================
 
-.. method:: add_argument([action], [nargs], [const], [default], [type], [choices], [required], [help], [metavar], [dest])
+.. method:: add_argument(name or flags..., [action], [nargs], [const], [default], [type], [choices], [required], [help], [metavar], [dest])
 
    Define how a single command line argument should be parsed. Each parameter has its own more detailed description below, but in short they are:
    
+   * `name or flags`_ - Either a name or a list of option strings, e.g. ``foo`` or ``-f, --foo``
    * action_ - The basic type of action to be taken when this argument is encountered at the command-line.
    * nargs_ - The number of command-line arguments that should be consumed.
    * const_ - A constant value required by some action_ and nargs_ selections.
@@ -18,11 +19,34 @@ The add_argument() method
    
    The following sections describe how each of these are used.
 
+name or flags
+-------------
+
+The :meth:`add_argument` method needs to know whether you're expecting an optional argument, e.g. ``-f`` or ``--foo`, or a positional argument, e.g. a list of filenames. The first arguments passed to :meth:`add_argument` must therefore be either a series of flags, or a simple argument name. For example, an optional argument could be created like::
+
+  >>> parser.add_argument('-f', '--foo')
+
+while a positional argument could be created like::
+
+  >>> parser.add_argument('bar')
+
+When :meth:`parse_args` is called, optional arguments will be identified by the ``-`` prefix, and the remaining arguments will be assumed to be positional::
+
+  >>> parser = argparse.ArgumentParser(prog='PROG')
+  >>> parser.add_argument('-f', '--foo')
+  >>> parser.add_argument('bar')
+  >>> parser.parse_args(['BAR'])
+  Namespace(bar='BAR', foo=None)
+  >>> parser.parse_args(['BAR', '--foo', 'FOO'])
+  Namespace(bar='BAR', foo='FOO')
+  >>> parser.parse_args(['--foo', 'FOO'])
+  usage: PROG [-h] [-f FOO] bar
+  PROG: error: too few arguments
 
 action
 ------
 
-ArgumentParser objects associate command-line args with actions.  These actions can do just about anything with the command-line args associated with them, though most actions simply add an attribute to the object returned by :meth:`parse_args`.  When you specify a new argument using the :meth:`add_argument` method, you can indicate how the command-line args should be handled by specifying the ``action`` keyword argument. The supported actions are:
+:class:`ArgumentParser` objects associate command-line args with actions.  These actions can do just about anything with the command-line args associated with them, though most actions simply add an attribute to the object returned by :meth:`parse_args`.  When you specify a new argument using the :meth:`add_argument` method, you can indicate how the command-line args should be handled by specifying the ``action`` keyword argument. The supported actions are:
 
 * ``'store'`` - This just stores the argument's value. This is the default action. For example::
 

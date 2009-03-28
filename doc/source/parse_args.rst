@@ -9,10 +9,43 @@ The parse_args() method
    
    By default, the arg strings are taken from ``sys.argv``, and a new empty ``Namespace`` object is created for the attributes.
 
+Option value syntax
+-------------------
+
+The :meth:`parse_args` method supports several ways of specifying the value of an option (if it takes one). In the simplest case, the option and its value are passed as two separate arguments::
+
+  >>> parser = argparse.ArgumentParser(prog='PROG')
+  >>> parser.add_argument('-x')
+  >>> parser.add_argument('--foo')
+  >>> parser.parse_args('-x X'.split())
+  Namespace(foo=None, x='X')
+  >>> parser.parse_args('--foo FOO'.split())
+  Namespace(foo='FOO', x=None)
+
+For long options (options with names longer than a single character), you may also pass the option and value as a single command line argument, using ``=`` to separate them::
+
+  >>> parser.parse_args('--foo=FOO'.split())
+  Namespace(foo='FOO', x=None)
+
+For short options (options only one character long), you may simply concatenate the option and its value::
+
+  >>> parser.parse_args('-xX'.split())
+  Namespace(foo=None, x='X')
+
+You can also combine several short options together, using only a single ``-`` prefix, as long as only the last option (or none of them) requires a value::
+
+  >>> parser = argparse.ArgumentParser(prog='PROG')
+  >>> parser.add_argument('-x', action='store_true')
+  >>> parser.add_argument('-y', action='store_true')
+  >>> parser.add_argument('-z')
+  >>> parser.parse_args('-xyzZ'.split())
+  Namespace(x=True, y=True, z='Z')
+
+
 Invalid arguments
 -----------------
 
-While parsing the command-line, ``parse_args`` checks for a variety of errors, including invalid types, invalid options, wrong number of positional arguments, etc. When it encounters such an error, it exits and prints the error along with a usage message::
+While parsing the command-line, ``parse_args`` checks for a variety of errors, including ambiguous options, invalid types, invalid options, wrong number of positional arguments, etc. When it encounters such an error, it exits and prints the error along with a usage message::
 
   >>> parser = argparse.ArgumentParser(prog='PROG')
   >>> parser.add_argument('--foo', type=int)
@@ -32,6 +65,10 @@ While parsing the command-line, ``parse_args`` checks for a variety of errors, i
   >>> parser.parse_args(['spam', 'badger'])
   usage: PROG [-h] [--foo FOO] [bar]
   PROG: error: extra arguments found: badger
+
+
+Arguments containing ``"-"``
+----------------------------
 
 The ``parse_args`` method attempts to give errors whenever the user has clearly made a mistake, but some situations are inherently ambiguous. For example, the command-line arg ``'-1'`` could either be an attempt to specify an option or an attempt to provide a positional argument. The ``parse_args`` method is cautious here: positional arguments may only begin with ``'-'`` if they look like negative numbers and there are no options in the parser that look like negative numbers::
 
@@ -69,6 +106,25 @@ If you have positional arguments that must begin with ``'-'`` and don't look lik
 
   >>> parser.parse_args(['--', '-f'])
   Namespace(foo='-f', one=None)
+
+
+Argument abbreviations
+----------------------
+
+The :meth:`parse_args` method allows you to abbreviate long options if the abbreviation is unambiguous::
+
+  >>> parser = argparse.ArgumentParser(prog='PROG')
+  >>> parser.add_argument('-bacon')
+  >>> parser.add_argument('-badger')
+  >>> parser.parse_args('-bac MMM'.split())
+  Namespace(bacon='MMM', badger=None)
+  >>> parser.parse_args('-bad WOOD'.split())
+  Namespace(bacon=None, badger='WOOD')
+  >>> parser.parse_args('-ba BA'.split())
+  usage: PROG [-h] [-bacon BACON] [-badger BADGER]
+  PROG: error: ambiguous option: -ba could match -badger, -bacon
+
+As you can see above, you will get an error if you pick a prefix that could refer to more than one option.
 
 
 Beyond ``sys.argv``

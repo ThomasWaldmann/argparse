@@ -57,9 +57,41 @@
 <p>By default, the arg strings are taken from <tt class="docutils literal"><span class="pre">sys.argv</span></tt>, and a new empty <tt class="docutils literal"><span class="pre">Namespace</span></tt> object is created for the attributes.</p>
 </dd></dl>
 
+<div class="section" id="option-value-syntax">
+<h2>Option value syntax<a class="headerlink" href="#option-value-syntax" title="Permalink to this headline">¶</a></h2>
+<p>The <a title="parse_args" class="reference internal" href="#parse_args"><tt class="xref docutils literal"><span class="pre">parse_args()</span></tt></a> method supports several ways of specifying the value of an option (if it takes one). In the simplest case, the option and its value are passed as two separate arguments:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">prog</span><span class="o">=</span><span class="s">&#39;PROG&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-x&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--foo&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="s">&#39;-x X&#39;</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+<span class="go">Namespace(foo=None, x=&#39;X&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="s">&#39;--foo FOO&#39;</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+<span class="go">Namespace(foo=&#39;FOO&#39;, x=None)</span>
+</pre></div>
+</div>
+<p>For long options (options with names longer than a single character), you may also pass the option and value as a single command line argument, using <tt class="docutils literal"><span class="pre">=</span></tt> to separate them:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="s">&#39;--foo=FOO&#39;</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+<span class="go">Namespace(foo=&#39;FOO&#39;, x=None)</span>
+</pre></div>
+</div>
+<p>For short options (options only one character long), you may simply concatenate the option and its value:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="s">&#39;-xX&#39;</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+<span class="go">Namespace(foo=None, x=&#39;X&#39;)</span>
+</pre></div>
+</div>
+<p>You can also combine several short options together, using only a single <tt class="docutils literal"><span class="pre">-</span></tt> prefix, as long as only the last option (or none of them) requires a value:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">prog</span><span class="o">=</span><span class="s">&#39;PROG&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-x&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-y&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-z&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="s">&#39;-xyzZ&#39;</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+<span class="go">Namespace(x=True, y=True, z=&#39;Z&#39;)</span>
+</pre></div>
+</div>
+</div>
 <div class="section" id="invalid-arguments">
 <h2>Invalid arguments<a class="headerlink" href="#invalid-arguments" title="Permalink to this headline">¶</a></h2>
-<p>While parsing the command-line, <tt class="docutils literal"><span class="pre">parse_args</span></tt> checks for a variety of errors, including invalid types, invalid options, wrong number of positional arguments, etc. When it encounters such an error, it exits and prints the error along with a usage message:</p>
+<p>While parsing the command-line, <tt class="docutils literal"><span class="pre">parse_args</span></tt> checks for a variety of errors, including ambiguous options, invalid types, invalid options, wrong number of positional arguments, etc. When it encounters such an error, it exits and prints the error along with a usage message:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">prog</span><span class="o">=</span><span class="s">&#39;PROG&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--foo&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;bar&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s">&#39;?&#39;</span><span class="p">)</span>
@@ -80,6 +112,9 @@
 <span class="go">PROG: error: extra arguments found: badger</span>
 </pre></div>
 </div>
+</div>
+<div class="section" id="arguments-containing">
+<h2>Arguments containing <tt class="docutils literal"><span class="pre">&quot;-&quot;</span></tt><a class="headerlink" href="#arguments-containing" title="Permalink to this headline">¶</a></h2>
 <p>The <tt class="docutils literal"><span class="pre">parse_args</span></tt> method attempts to give errors whenever the user has clearly made a mistake, but some situations are inherently ambiguous. For example, the command-line arg <tt class="docutils literal"><span class="pre">'-1'</span></tt> could either be an attempt to specify an option or an attempt to provide a positional argument. The <tt class="docutils literal"><span class="pre">parse_args</span></tt> method is cautious here: positional arguments may only begin with <tt class="docutils literal"><span class="pre">'-'</span></tt> if they look like negative numbers and there are no options in the parser that look like negative numbers:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">prog</span><span class="o">=</span><span class="s">&#39;PROG&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-x&#39;</span><span class="p">)</span>
@@ -117,6 +152,23 @@
 <span class="go">Namespace(foo=&#39;-f&#39;, one=None)</span>
 </pre></div>
 </div>
+</div>
+<div class="section" id="argument-abbreviations">
+<h2>Argument abbreviations<a class="headerlink" href="#argument-abbreviations" title="Permalink to this headline">¶</a></h2>
+<p>The <a title="parse_args" class="reference internal" href="#parse_args"><tt class="xref docutils literal"><span class="pre">parse_args()</span></tt></a> method allows you to abbreviate long options if the abbreviation is unambiguous:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">prog</span><span class="o">=</span><span class="s">&#39;PROG&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-bacon&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-badger&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="s">&#39;-bac MMM&#39;</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+<span class="go">Namespace(bacon=&#39;MMM&#39;, badger=None)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="s">&#39;-bad WOOD&#39;</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+<span class="go">Namespace(bacon=None, badger=&#39;WOOD&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="s">&#39;-ba BA&#39;</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+<span class="go">usage: PROG [-h] [-bacon BACON] [-badger BADGER]</span>
+<span class="go">PROG: error: ambiguous option: -ba could match -badger, -bacon</span>
+</pre></div>
+</div>
+<p>As you can see above, you will get an error if you pick a prefix that could refer to more than one option.</p>
 </div>
 <div class="section" id="beyond-sys-argv">
 <h2>Beyond <tt class="docutils literal"><span class="pre">sys.argv</span></tt><a class="headerlink" href="#beyond-sys-argv" title="Permalink to this headline">¶</a></h2>
@@ -161,7 +213,10 @@
             <h3><a href="index.html">Table Of Contents</a></h3>
             <ul>
 <li><a class="reference external" href="">The parse_args() method</a><ul>
+<li><a class="reference external" href="#option-value-syntax">Option value syntax</a></li>
 <li><a class="reference external" href="#invalid-arguments">Invalid arguments</a></li>
+<li><a class="reference external" href="#arguments-containing">Arguments containing <tt class="docutils literal"><span class="pre">&quot;-&quot;</span></tt></a></li>
+<li><a class="reference external" href="#argument-abbreviations">Argument abbreviations</a></li>
 <li><a class="reference external" href="#beyond-sys-argv">Beyond <tt class="docutils literal"><span class="pre">sys.argv</span></tt></a></li>
 <li><a class="reference external" href="#custom-namespaces">Custom namespaces</a></li>
 </ul>
