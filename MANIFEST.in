@@ -1,4 +1,6 @@
 include README.txt
 include doc/*.html
 include doc/*.js
-recursive-include doc/_static *
+include doc/_static/*.css
+include doc/_static/*.js
+include doc/_static/*.png
