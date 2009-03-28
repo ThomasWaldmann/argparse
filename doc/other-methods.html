@@ -49,6 +49,31 @@
             
   <div class="section" id="other-methods">
 <h1>Other methods<a class="headerlink" href="#other-methods" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="printing-help">
+<h2>Printing help<a class="headerlink" href="#printing-help" title="Permalink to this headline">¶</a></h2>
+<p>In most typical applications, <a title="parse_args" class="reference external" href="parse_args.html#parse_args"><tt class="xref docutils literal"><span class="pre">parse_args()</span></tt></a> will take care of formatting and printing any usage or error messages. However, should you want to format or print these on your own, several methods are available:</p>
+<dl class="method">
+<dt>
+<tt class="descname">print_usage([file]):</tt></dt>
+<dd>Print a brief description of how the <a title="ArgumentParser" class="reference external" href="ArgumentParser.html#ArgumentParser"><tt class="xref docutils literal"><span class="pre">ArgumentParser</span></tt></a> should be invoked on the command line.  If <tt class="docutils literal"><span class="pre">file</span></tt> is not present, <tt class="docutils literal"><span class="pre">sys.stderr</span></tt> is assumed.</dd></dl>
+
+<dl class="method">
+<dt>
+<tt class="descname">print_help([file]):</tt></dt>
+<dd>Print a help message, including the program usage and information about the arguments registered with the <a title="ArgumentParser" class="reference external" href="ArgumentParser.html#ArgumentParser"><tt class="xref docutils literal"><span class="pre">ArgumentParser</span></tt></a>. If <tt class="docutils literal"><span class="pre">file</span></tt> is not present, <tt class="docutils literal"><span class="pre">sys.stderr</span></tt> is assumed.</dd></dl>
+
+<p>There are also variants of these methods that simply return a string instead of printing it:</p>
+<dl class="method">
+<dt>
+<tt class="descname">format_usage():</tt></dt>
+<dd>Return a string containing a brief description of how the <a title="ArgumentParser" class="reference external" href="ArgumentParser.html#ArgumentParser"><tt class="xref docutils literal"><span class="pre">ArgumentParser</span></tt></a> should be invoked on the command line.</dd></dl>
+
+<dl class="method">
+<dt>
+<tt class="descname">format_help():</tt></dt>
+<dd>Return a string containing a help message, including the program usage and information about the arguments registered with the <a title="ArgumentParser" class="reference external" href="ArgumentParser.html#ArgumentParser"><tt class="xref docutils literal"><span class="pre">ArgumentParser</span></tt></a>.</dd></dl>
+
+</div>
 <div class="section" id="parser-defaults">
 <h2>Parser defaults<a class="headerlink" href="#parser-defaults" title="Permalink to this headline">¶</a></h2>
 <dl class="method">
@@ -266,6 +291,7 @@
             <h3><a href="index.html">Table Of Contents</a></h3>
             <ul>
 <li><a class="reference external" href="">Other methods</a><ul>
+<li><a class="reference external" href="#printing-help">Printing help</a></li>
 <li><a class="reference external" href="#parser-defaults">Parser defaults</a></li>
 <li><a class="reference external" href="#sub-commands">Sub-commands</a></li>
 <li><a class="reference external" href="#argument-groups">Argument groups</a></li>

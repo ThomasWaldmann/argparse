@@ -1,6 +1,31 @@
 Other methods
 =============
 
+Printing help
+-------------
+
+In most typical applications, :meth:`parse_args` will take care of formatting and printing any usage or error messages. However, should you want to format or print these on your own, several methods are available:
+
+.. method:: print_usage([file]):
+
+   Print a brief description of how the :class:`ArgumentParser` should be invoked on the command line.  If ``file`` is not present, ``sys.stderr`` is assumed.
+
+.. method:: print_help([file]):
+
+   Print a help message, including the program usage and information about the arguments registered with the :class:`ArgumentParser`. If ``file`` is not present, ``sys.stderr`` is assumed.
+   
+There are also variants of these methods that simply return a string instead of printing it:
+
+.. method:: format_usage():
+
+   Return a string containing a brief description of how the :class:`ArgumentParser` should be invoked on the command line.
+
+.. method:: format_help():
+
+   Return a string containing a help message, including the program usage and information about the arguments registered with the :class:`ArgumentParser`.
+   
+
+
 Parser defaults
 ---------------
 
