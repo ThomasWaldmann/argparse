@@ -11,11 +11,11 @@ FileType objects
    >>> parser = argparse.ArgumentParser()
    >>> parser.add_argument('--output', type=argparse.FileType('wb', 0))
    >>> parser.parse_args(['--output', 'out'])
-   Namespace(output=<open file 'out', mode 'wb' at 0x013A2380>)
+   Namespace(output=<open file 'out', mode 'wb' at 0x...>)
    
    FileType objects understand the pseudo-argument ``'-'`` and automatically convert this into ``sys.stdin`` for readable :class:`FileType` objects and ``sys.stdout`` for writable :class:`FileType` objects:
    
    >>> parser = argparse.ArgumentParser()
    >>> parser.add_argument('infile', type=argparse.FileType('r'))
    >>> parser.parse_args(['-'])
-   Namespace(infile=<open file '<stdin>', mode 'r' at 0x00ADF020>)
+   Namespace(infile=<open file '<stdin>', mode 'r' at 0x...>)

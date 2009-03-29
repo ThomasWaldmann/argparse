@@ -195,9 +195,9 @@
 <span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;infile&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s">&#39;?&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">FileType</span><span class="p">(</span><span class="s">&#39;r&#39;</span><span class="p">),</span> <span class="n">default</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;outfile&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s">&#39;?&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">FileType</span><span class="p">(</span><span class="s">&#39;w&#39;</span><span class="p">),</span> <span class="n">default</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">([</span><span class="s">&#39;input.txt&#39;</span><span class="p">,</span> <span class="s">&#39;output.txt&#39;</span><span class="p">])</span>
-<span class="go">Namespace(infile=&lt;open file &#39;input.txt&#39;, mode &#39;r&#39; at 0x00B8FB18&gt;, outfile=&lt;open file &#39;output.txt&#39;, mode &#39;w&#39; at 0x00B8FE78&gt;)</span>
+<span class="go">Namespace(infile=&lt;open file &#39;input.txt&#39;, mode &#39;r&#39; at 0x...&gt;, outfile=&lt;open file &#39;output.txt&#39;, mode &#39;w&#39; at 0x...&gt;)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">([])</span>
-<span class="go">Namespace(infile=&lt;open file &#39;&lt;stdin&gt;&#39;, mode &#39;r&#39; at 0x00B1F020&gt;, outfile=&lt;open file &#39;&lt;stdout&gt;&#39;, mode &#39;w&#39; at 0x00B1F068&gt;)</span>
+<span class="go">Namespace(infile=&lt;open file &#39;&lt;stdin&gt;&#39;, mode &#39;r&#39; at 0x...&gt;, outfile=&lt;open file &#39;&lt;stdout&gt;&#39;, mode &#39;w&#39; at 0x...&gt;)</span>
 </pre></div>
 </div>
 </li>
@@ -271,14 +271,14 @@
 <span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;foo&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;bar&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">file</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="s">&#39;2 temp.txt&#39;</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
-<span class="go">Namespace(bar=&lt;open file &#39;temp.txt&#39;, mode &#39;r&#39; at ...&gt;, foo=2)</span>
+<span class="go">Namespace(bar=&lt;open file &#39;temp.txt&#39;, mode &#39;r&#39; at 0x...&gt;, foo=2)</span>
 </pre></div>
 </div>
 <p>To ease the use of various types of files, the argparse module provides the factory FileType which takes the <tt class="docutils literal"><span class="pre">mode=</span></tt> and <tt class="docutils literal"><span class="pre">bufsize=</span></tt> arguments of the <tt class="docutils literal"><span class="pre">file</span></tt> object. For example, <tt class="docutils literal"><span class="pre">FileType('w')</span></tt> can be used to create a writable file:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;bar&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">FileType</span><span class="p">(</span><span class="s">&#39;w&#39;</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">([</span><span class="s">&#39;out.txt&#39;</span><span class="p">])</span>
-<span class="go">Namespace(bar=&lt;open file &#39;out.txt&#39;, mode &#39;w&#39; at 0x013A2410&gt;)</span>
+<span class="go">Namespace(bar=&lt;open file &#39;out.txt&#39;, mode &#39;w&#39; at 0x...&gt;)</span>
 </pre></div>
 </div>
 <p>If you need to do some special type-checking or type-conversions, you can provide your own types by passing to <tt class="docutils literal"><span class="pre">type=</span></tt> a callable that takes a single string argument and returns the type-converted value:</p>

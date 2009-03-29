@@ -192,3 +192,7 @@ latex_documents = [
 
 # If false, no module index is generated.
 #latex_use_modindex = True
+
+# Python code that is treated like it were put in a testsetup directive for
+# every file that is tested, and for every group.
+doctest_global_setup = "import argparse"

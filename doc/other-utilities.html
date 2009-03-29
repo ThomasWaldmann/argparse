@@ -55,14 +55,14 @@ class </em><tt class="descname">FileType</tt><big>(</big><em>mode='r'</em>, <em>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--output&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">FileType</span><span class="p">(</span><span class="s">&#39;wb&#39;</span><span class="p">,</span> <span class="mf">0</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">([</span><span class="s">&#39;--output&#39;</span><span class="p">,</span> <span class="s">&#39;out&#39;</span><span class="p">])</span>
-<span class="go">Namespace(output=&lt;open file &#39;out&#39;, mode &#39;wb&#39; at 0x013A2380&gt;)</span>
+<span class="go">Namespace(output=&lt;open file &#39;out&#39;, mode &#39;wb&#39; at 0x...&gt;)</span>
 </pre></div>
 </div>
 <p>FileType objects understand the pseudo-argument <tt class="docutils literal"><span class="pre">'-'</span></tt> and automatically convert this into <tt class="docutils literal"><span class="pre">sys.stdin</span></tt> for readable <a title="FileType" class="reference internal" href="#FileType"><tt class="xref docutils literal"><span class="pre">FileType</span></tt></a> objects and <tt class="docutils literal"><span class="pre">sys.stdout</span></tt> for writable <a title="FileType" class="reference internal" href="#FileType"><tt class="xref docutils literal"><span class="pre">FileType</span></tt></a> objects:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;infile&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">FileType</span><span class="p">(</span><span class="s">&#39;r&#39;</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">([</span><span class="s">&#39;-&#39;</span><span class="p">])</span>
-<span class="go">Namespace(infile=&lt;open file &#39;&lt;stdin&gt;&#39;, mode &#39;r&#39; at 0x00ADF020&gt;)</span>
+<span class="go">Namespace(infile=&lt;open file &#39;&lt;stdin&gt;&#39;, mode &#39;r&#39; at 0x...&gt;)</span>
 </pre></div>
 </div>
 </dd></dl>

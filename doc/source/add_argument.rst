@@ -142,9 +142,9 @@ ArgumentParser objects usually associate a single command-line argument with a s
     >>> parser.add_argument('infile', nargs='?', type=argparse.FileType('r'), default=sys.stdin)
     >>> parser.add_argument('outfile', nargs='?', type=argparse.FileType('w'), default=sys.stdout)
     >>> parser.parse_args(['input.txt', 'output.txt'])
-    Namespace(infile=<open file 'input.txt', mode 'r' at 0x00B8FB18>, outfile=<open file 'output.txt', mode 'w' at 0x00B8FE78>)
+    Namespace(infile=<open file 'input.txt', mode 'r' at 0x...>, outfile=<open file 'output.txt', mode 'w' at 0x...>)
     >>> parser.parse_args([])
-    Namespace(infile=<open file '<stdin>', mode 'r' at 0x00B1F020>, outfile=<open file '<stdout>', mode 'w' at 0x00B1F068>)
+    Namespace(infile=<open file '<stdin>', mode 'r' at 0x...>, outfile=<open file '<stdout>', mode 'w' at 0x...>)
 
 * ``'*'``. All command-line args present are gathered into a list. Note that it generally doesn't make much sense to have more than one positional argument with ``nargs='*'``, but multiple optional arguments with ``nargs='*'`` is possible.  For example::
 
@@ -221,14 +221,14 @@ By default, ArgumentParser objects read command-line args in as simple strings. 
   >>> parser.add_argument('foo', type=int)
   >>> parser.add_argument('bar', type=file)
   >>> parser.parse_args('2 temp.txt'.split())
-  Namespace(bar=<open file 'temp.txt', mode 'r' at ...>, foo=2)
+  Namespace(bar=<open file 'temp.txt', mode 'r' at 0x...>, foo=2)
 
 To ease the use of various types of files, the argparse module provides the factory FileType which takes the ``mode=`` and ``bufsize=`` arguments of the ``file`` object. For example, ``FileType('w')`` can be used to create a writable file::
 
   >>> parser = argparse.ArgumentParser()
   >>> parser.add_argument('bar', type=argparse.FileType('w'))
   >>> parser.parse_args(['out.txt'])
-  Namespace(bar=<open file 'out.txt', mode 'w' at 0x013A2410>)
+  Namespace(bar=<open file 'out.txt', mode 'w' at 0x...>)
 
 If you need to do some special type-checking or type-conversions, you can provide your own types by passing to ``type=`` a callable that takes a single string argument and returns the type-converted value::
 
