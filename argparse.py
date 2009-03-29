@@ -81,6 +81,11 @@ import textwrap as _textwrap
 
 from gettext import gettext as _
 
+try:
+    basestring
+except NameError:
+    basestring = str
+
 SUPPRESS = '==SUPPRESS=='
 
 OPTIONAL = '?'
@@ -345,7 +350,7 @@ class HelpFormatter(object):
                     else:
                         inserts[start] = '('
                         inserts[end] = ')'
-                    for i in xrange(start + 1, end):
+                    for i in range(start + 1, end):
                         inserts[i] = '|'
 
         # collect all actions format strings
@@ -517,8 +522,8 @@ class HelpFormatter(object):
 
     def _expand_help(self, action):
         params = dict(vars(action), prog=self._prog)
-        for name, value in params.items():
-            if value is SUPPRESS:
+        for name in list(params):
+            if params[name] is SUPPRESS:
                 del params[name]
         if params.get('choices') is not None:
             choices_str = ', '.join(str(c) for c in params['choices'])
@@ -1012,8 +1017,8 @@ class FileType(object):
 class Namespace(_AttributeHolder):
 
     def __init__(self, **kwargs):
-        for name, value in kwargs.iteritems():
-            setattr(self, name, value)
+        for name in kwargs:
+            setattr(self, name, kwargs[name])
 
     def __eq__(self, other):
         return vars(self) == vars(other)
@@ -1500,14 +1505,15 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
                         setattr(namespace, action.dest, default)
 
         # add any parser defaults that aren't present
-        for dest, value in self._defaults.iteritems():
+        for dest in self._defaults:
             if not hasattr(namespace, dest):
-                setattr(namespace, dest, value)
+                setattr(namespace, dest, self._defaults[dest])
 
         # parse the arguments and exit if there are any errors
         try:
             return self._parse_args(args, namespace)
-        except ArgumentError, err:
+        except ArgumentError:
+            err = _sys.exc_info()[1]
             self.error(str(err))
 
     def _parse_args(self, arg_strings, namespace):
@@ -1766,7 +1772,7 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
         # progressively shorten the actions list by slicing off the
         # final actions until we find a match
         result = []
-        for i in xrange(len(actions), 0, -1):
+        for i in range(len(actions), 0, -1):
             actions_slice = actions[:i]
             pattern = ''.join(self._get_nargs_pattern(action)
                               for action in actions_slice)
@@ -1950,7 +1956,7 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
 
     def _get_value(self, action, arg_string):
         type_func = self._registry_get('type', action.type, action.type)
-        if not callable(type_func):
+        if not hasattr(type_func, '__call__'):
             msg = _('%r is not callable')
             raise ArgumentError(action, msg % type_func)
 

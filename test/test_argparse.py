@@ -16,11 +16,15 @@
 
 import codecs
 import os
-import StringIO
 import sys
 import textwrap
 import tempfile
 import unittest
+
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 
 import argparse
 
@@ -29,8 +33,8 @@ class TestCase(unittest.TestCase):
 
     def assertEqual(self, obj1, obj2):
         if obj1 != obj2:
-            print obj1
-            print obj2
+            print(obj1)
+            print(obj2)
         super(TestCase, self).assertEqual(obj1, obj2)
 
 
@@ -70,19 +74,20 @@ def stderr_to_parser_error(func, *args, **kwargs):
     # if this is being called recursively and stderr is already being
     # redirected, simply call the function and let the enclosing function
     # catch the exception
-    if isinstance(sys.stderr, StringIO.StringIO):
+    if isinstance(sys.stderr, StringIO):
         return func(*args, **kwargs)
 
     # if this is not being called recursively, redirect stderr and
     # use it as the ArgumentParserError message
     old_stderr = sys.stderr
-    sys.stderr = StringIO.StringIO()
+    sys.stderr = StringIO()
     try:
         try:
             return func(*args, **kwargs)
-        except SystemExit, err:
+        except SystemExit:
+            code = sys.exc_info()[1].code
             message = sys.stderr.getvalue()
-            raise ArgumentParserError(message, err.code)
+            raise ArgumentParserError(message, code)
     finally:
         sys.stderr = old_stderr
 
@@ -118,7 +123,9 @@ class ParserTesterMetaclass(type):
         remaining unparsed arguments
     """
 
-    def __init__(cls, *args):
+    def __init__(cls, name, bases, bodydict):
+        if name == 'ParserTestCase':
+            return
 
         # default parser signature is empty
         if not hasattr(cls, 'parser_signature'):
@@ -207,14 +214,15 @@ class ParserTesterMetaclass(type):
             for parse_args in [listargs, sysargs]:
                 AddTests(cls, add_arguments, parse_args)
 
+bases = TestCase,
+ParserTestCase = ParserTesterMetaclass('ParserTestCase', bases, {})
 
 # ============
 # Optional tests
 # ============
 
-class TestOptionalsSingleDash(TestCase):
+class TestOptionalsSingleDash(ParserTestCase):
     """Test an Optional with a single-dash option string"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [Sig('-x')]
     failures = ['-x', 'a', '--foo', '-x --foo', '-x -y']
@@ -227,9 +235,8 @@ class TestOptionalsSingleDash(TestCase):
     ]
 
 
-class TestOptionalsSingleDashCombined(TestCase):
+class TestOptionalsSingleDashCombined(ParserTestCase):
     """Test an Optional with a single-dash option string"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [
         Sig('-x', action='store_true'),
@@ -254,9 +261,8 @@ class TestOptionalsSingleDashCombined(TestCase):
     ]
 
 
-class TestOptionalsSingleDashLong(TestCase):
+class TestOptionalsSingleDashLong(ParserTestCase):
     """Test an Optional with a multi-character single-dash option string"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [Sig('-foo')]
     failures = ['-foo', 'a', '--foo', '-foo --foo', '-foo -y', '-fooa']
@@ -269,9 +275,8 @@ class TestOptionalsSingleDashLong(TestCase):
     ]
 
 
-class TestOptionalsSingleDashSubsetAmbiguous(TestCase):
+class TestOptionalsSingleDashSubsetAmbiguous(ParserTestCase):
     """Test Optionals where option strings are subsets of each other"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [Sig('-f'), Sig('-foobar'), Sig('-foorab')]
     failures = ['-f', '-foo', '-fo', '-foo b', '-foob', '-fooba', '-foora']
@@ -286,9 +291,8 @@ class TestOptionalsSingleDashSubsetAmbiguous(TestCase):
     ]
 
 
-class TestOptionalsSingleDashAmbiguous(TestCase):
+class TestOptionalsSingleDashAmbiguous(ParserTestCase):
     """Test Optionals that partially match but are not subsets"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [Sig('-foobar'), Sig('-foorab')]
     failures = ['-f', '-f a', '-fa', '-foa', '-foo', '-fo', '-foo b']
@@ -303,9 +307,8 @@ class TestOptionalsSingleDashAmbiguous(TestCase):
     ]
 
 
-class TestOptionalsNumeric(TestCase):
+class TestOptionalsNumeric(ParserTestCase):
     """Test an Optional with a short opt string"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [Sig('-1', dest='one')]
     failures = ['-1', 'a', '-1 --foo', '-1 -y', '-1 -1', '-1 -2']
@@ -317,9 +320,8 @@ class TestOptionalsNumeric(TestCase):
     ]
 
 
-class TestOptionalsDoubleDash(TestCase):
+class TestOptionalsDoubleDash(ParserTestCase):
     """Test an Optional with a double-dash option string"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [Sig('--foo')]
     failures = ['--foo', '-f', '-f a', 'a', '--foo -x', '--foo --bar']
@@ -332,9 +334,8 @@ class TestOptionalsDoubleDash(TestCase):
     ]
 
 
-class TestOptionalsDoubleDashPartialMatch(TestCase):
+class TestOptionalsDoubleDashPartialMatch(ParserTestCase):
     """Tests partial matching with a double-dash option string"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [
         Sig('--badger', action='store_true'),
@@ -351,9 +352,8 @@ class TestOptionalsDoubleDashPartialMatch(TestCase):
     ]
 
 
-class TestOptionalsSingleDoubleDash(TestCase):
+class TestOptionalsSingleDoubleDash(ParserTestCase):
     """Test an Optional with single- and double-dash option strings"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [
         Sig('-f', action='store_true'),
@@ -371,9 +371,8 @@ class TestOptionalsSingleDoubleDash(TestCase):
     ]
 
 
-class TestOptionalsAlternatePrefixChars(TestCase):
+class TestOptionalsAlternatePrefixChars(ParserTestCase):
     """Test an Optional with a double-dash option string"""
-    __metaclass__ = ParserTesterMetaclass
 
     parser_signature = Sig(prefix_chars='+:/', add_help=False)
     argument_signatures = [
@@ -392,9 +391,8 @@ class TestOptionalsAlternatePrefixChars(TestCase):
     ]
 
 
-class TestOptionalsShortLong(TestCase):
+class TestOptionalsShortLong(ParserTestCase):
     """Test a combination of single- and double-dash option strings"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [
         Sig('-v', '--verbose', '-n', '--noisy', action='store_true'),
@@ -409,9 +407,8 @@ class TestOptionalsShortLong(TestCase):
     ]
 
 
-class TestOptionalsDest(TestCase):
+class TestOptionalsDest(ParserTestCase):
     """Tests various means of setting destination"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [Sig('--foo-bar'), Sig('--baz', dest='zabbaz')]
     failures = ['a']
@@ -423,9 +420,8 @@ class TestOptionalsDest(TestCase):
     ]
 
 
-class TestOptionalsDefault(TestCase):
+class TestOptionalsDefault(ParserTestCase):
     """Tests specifying a default for an Optional"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [Sig('-x'), Sig('-y', default=42)]
     failures = ['a']
@@ -436,9 +432,8 @@ class TestOptionalsDefault(TestCase):
     ]
 
 
-class TestOptionalsNargsDefault(TestCase):
+class TestOptionalsNargsDefault(ParserTestCase):
     """Tests not specifying the number of args for an Optional"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [Sig('-x')]
     failures = ['a', '-x']
@@ -448,9 +443,8 @@ class TestOptionalsNargsDefault(TestCase):
     ]
 
 
-class TestOptionalsNargs1(TestCase):
+class TestOptionalsNargs1(ParserTestCase):
     """Tests specifying the 1 arg for an Optional"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [Sig('-x', nargs=1)]
     failures = ['a', '-x']
@@ -460,9 +454,8 @@ class TestOptionalsNargs1(TestCase):
     ]
 
 
-class TestOptionalsNargs3(TestCase):
+class TestOptionalsNargs3(ParserTestCase):
     """Tests specifying the 3 args for an Optional"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [Sig('-x', nargs=3)]
     failures = ['a', '-x', '-x a', '-x a b', 'a -x', 'a -x b']
@@ -472,9 +465,8 @@ class TestOptionalsNargs3(TestCase):
     ]
 
 
-class TestOptionalsNargsOptional(TestCase):
+class TestOptionalsNargsOptional(ParserTestCase):
     """Tests specifying an Optional arg for an Optional"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [
         Sig('-w', nargs='?'),
@@ -496,9 +488,8 @@ class TestOptionalsNargsOptional(TestCase):
     ]
 
 
-class TestOptionalsNargsZeroOrMore(TestCase):
+class TestOptionalsNargsZeroOrMore(ParserTestCase):
     """Tests specifying an args for an Optional that accepts zero or more"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [
         Sig('-x', nargs='*'),
@@ -516,9 +507,8 @@ class TestOptionalsNargsZeroOrMore(TestCase):
     ]
 
 
-class TestOptionalsNargsOneOrMore(TestCase):
+class TestOptionalsNargsOneOrMore(ParserTestCase):
     """Tests specifying an args for an Optional that accepts one or more"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [
         Sig('-x', nargs='+'),
@@ -534,9 +524,8 @@ class TestOptionalsNargsOneOrMore(TestCase):
     ]
 
 
-class TestOptionalsChoices(TestCase):
+class TestOptionalsChoices(ParserTestCase):
     """Tests specifying the choices for an Optional"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [
         Sig('-f', choices='abc'),
@@ -552,9 +541,8 @@ class TestOptionalsChoices(TestCase):
     ]
 
 
-class TestOptionalsRequired(TestCase):
+class TestOptionalsRequired(ParserTestCase):
     """Tests the an optional action that is required"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [
         Sig('-x', type=int, required=True),
@@ -566,9 +554,8 @@ class TestOptionalsRequired(TestCase):
     ]
 
 
-class TestOptionalsActionStore(TestCase):
+class TestOptionalsActionStore(ParserTestCase):
     """Tests the store action for an Optional"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [Sig('-x', action='store')]
     failures = ['a', 'a -x']
@@ -578,9 +565,8 @@ class TestOptionalsActionStore(TestCase):
     ]
 
 
-class TestOptionalsActionStoreConst(TestCase):
+class TestOptionalsActionStoreConst(ParserTestCase):
     """Tests the store_const action for an Optional"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [Sig('-y', action='store_const', const=object)]
     failures = ['a']
@@ -590,9 +576,8 @@ class TestOptionalsActionStoreConst(TestCase):
     ]
 
 
-class TestOptionalsActionStoreFalse(TestCase):
+class TestOptionalsActionStoreFalse(ParserTestCase):
     """Tests the store_false action for an Optional"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [Sig('-z', action='store_false')]
     failures = ['a', '-za', '-z a']
@@ -602,9 +587,8 @@ class TestOptionalsActionStoreFalse(TestCase):
     ]
 
 
-class TestOptionalsActionStoreTrue(TestCase):
+class TestOptionalsActionStoreTrue(ParserTestCase):
     """Tests the store_true action for an Optional"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [Sig('--apple', action='store_true')]
     failures = ['a', '--apple=b', '--apple b']
@@ -614,9 +598,8 @@ class TestOptionalsActionStoreTrue(TestCase):
     ]
 
 
-class TestOptionalsActionAppend(TestCase):
+class TestOptionalsActionAppend(ParserTestCase):
     """Tests the append action for an Optional"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [Sig('--baz', action='append')]
     failures = ['a', '--baz', 'a --baz', '--baz a b']
@@ -627,9 +610,8 @@ class TestOptionalsActionAppend(TestCase):
     ]
 
 
-class TestOptionalsActionAppendConst(TestCase):
+class TestOptionalsActionAppendConst(ParserTestCase):
     """Tests the append_const action for an Optional"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [
         Sig('-b', action='append_const', const=Exception),
@@ -643,9 +625,8 @@ class TestOptionalsActionAppendConst(TestCase):
     ]
 
 
-class TestOptionalsActionCount(TestCase):
+class TestOptionalsActionCount(ParserTestCase):
     """Tests the count action for an Optional"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [Sig('-x', action='count')]
     failures = ['a', '-x a', '-x b', '-x a -x b']
@@ -659,9 +640,8 @@ class TestOptionalsActionCount(TestCase):
 # Positional tests
 # ================
 
-class TestPositionalsNargsNone(TestCase):
+class TestPositionalsNargsNone(ParserTestCase):
     """Test a Positional that doesn't specify nargs"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [Sig('foo')]
     failures = ['', '-x', 'a b']
@@ -670,9 +650,8 @@ class TestPositionalsNargsNone(TestCase):
     ]
 
 
-class TestPositionalsNargs1(TestCase):
+class TestPositionalsNargs1(ParserTestCase):
     """Test a Positional that specifies an nargs of 1"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [Sig('foo', nargs=1)]
     failures = ['', '-x', 'a b']
@@ -681,9 +660,8 @@ class TestPositionalsNargs1(TestCase):
     ]
 
 
-class TestPositionalsNargs2(TestCase):
+class TestPositionalsNargs2(ParserTestCase):
     """Test a Positional that specifies an nargs of 2"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [Sig('foo', nargs=2)]
     failures = ['', 'a', '-x', 'a b c']
@@ -692,9 +670,8 @@ class TestPositionalsNargs2(TestCase):
     ]
 
 
-class TestPositionalsNargsZeroOrMore(TestCase):
+class TestPositionalsNargsZeroOrMore(ParserTestCase):
     """Test a Positional that specifies unlimited nargs"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [Sig('foo', nargs='*')]
     failures = ['-x']
@@ -705,9 +682,8 @@ class TestPositionalsNargsZeroOrMore(TestCase):
     ]
 
 
-class TestPositionalsNargsZeroOrMoreDefault(TestCase):
+class TestPositionalsNargsZeroOrMoreDefault(ParserTestCase):
     """Test a Positional that specifies unlimited nargs and a default"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [Sig('foo', nargs='*', default='bar')]
     failures = ['-x']
@@ -718,9 +694,8 @@ class TestPositionalsNargsZeroOrMoreDefault(TestCase):
     ]
 
 
-class TestPositionalsNargsOneOrMore(TestCase):
+class TestPositionalsNargsOneOrMore(ParserTestCase):
     """Test a Positional that specifies one or more nargs"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [Sig('foo', nargs='+')]
     failures = ['', '-x']
@@ -730,9 +705,8 @@ class TestPositionalsNargsOneOrMore(TestCase):
     ]
 
 
-class TestPositionalsNargsOptional(TestCase):
+class TestPositionalsNargsOptional(ParserTestCase):
     """Tests an Optional Positional"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [Sig('foo', nargs='?')]
     failures = ['-x', 'a b']
@@ -742,9 +716,8 @@ class TestPositionalsNargsOptional(TestCase):
     ]
 
 
-class TestPositionalsNargsOptionalDefault(TestCase):
+class TestPositionalsNargsOptionalDefault(ParserTestCase):
     """Tests an Optional Positional with a default value"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [Sig('foo', nargs='?', default=42)]
     failures = ['-x', 'a b']
@@ -754,9 +727,8 @@ class TestPositionalsNargsOptionalDefault(TestCase):
     ]
 
 
-class TestPositionalsNargsOptionalConvertedDefault(TestCase):
+class TestPositionalsNargsOptionalConvertedDefault(ParserTestCase):
     """Tests an Optional Positional with a default value
-    __metaclass__ = ParserTesterMetaclass
     that needs to be converted to the appropriate type.
     """
 
@@ -770,9 +742,8 @@ class TestPositionalsNargsOptionalConvertedDefault(TestCase):
     ]
 
 
-class TestPositionalsNargsNoneNone(TestCase):
+class TestPositionalsNargsNoneNone(ParserTestCase):
     """Test two Positionals that don't specify nargs"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [Sig('foo'), Sig('bar')]
     failures = ['', '-x', 'a', 'a b c']
@@ -781,9 +752,8 @@ class TestPositionalsNargsNoneNone(TestCase):
     ]
 
 
-class TestPositionalsNargsNone1(TestCase):
+class TestPositionalsNargsNone1(ParserTestCase):
     """Test a Positional with no nargs followed by one with 1"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [Sig('foo'), Sig('bar', nargs=1)]
     failures = ['', '--foo', 'a', 'a b c']
@@ -792,9 +762,8 @@ class TestPositionalsNargsNone1(TestCase):
     ]
 
 
-class TestPositionalsNargs2None(TestCase):
+class TestPositionalsNargs2None(ParserTestCase):
     """Test a Positional with 2 nargs followed by one with none"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [Sig('foo', nargs=2), Sig('bar')]
     failures = ['', '--foo', 'a', 'a b', 'a b c d']
@@ -803,9 +772,8 @@ class TestPositionalsNargs2None(TestCase):
     ]
 
 
-class TestPositionalsNargsNoneZeroOrMore(TestCase):
+class TestPositionalsNargsNoneZeroOrMore(ParserTestCase):
     """Test a Positional with no nargs followed by one with unlimited"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [Sig('foo'), Sig('bar', nargs='*')]
     failures = ['', '--foo']
@@ -816,9 +784,8 @@ class TestPositionalsNargsNoneZeroOrMore(TestCase):
     ]
 
 
-class TestPositionalsNargsNoneOneOrMore(TestCase):
+class TestPositionalsNargsNoneOneOrMore(ParserTestCase):
     """Test a Positional with no nargs followed by one with one or more"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [Sig('foo'), Sig('bar', nargs='+')]
     failures = ['', '--foo', 'a']
@@ -828,9 +795,8 @@ class TestPositionalsNargsNoneOneOrMore(TestCase):
     ]
 
 
-class TestPositionalsNargsNoneOptional(TestCase):
+class TestPositionalsNargsNoneOptional(ParserTestCase):
     """Test a Positional with no nargs followed by one with an Optional"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [Sig('foo'), Sig('bar', nargs='?')]
     failures = ['', '--foo', 'a b c']
@@ -840,9 +806,8 @@ class TestPositionalsNargsNoneOptional(TestCase):
     ]
 
 
-class TestPositionalsNargsZeroOrMoreNone(TestCase):
+class TestPositionalsNargsZeroOrMoreNone(ParserTestCase):
     """Test a Positional with unlimited nargs followed by one with none"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [Sig('foo', nargs='*'), Sig('bar')]
     failures = ['', '--foo']
@@ -853,9 +818,8 @@ class TestPositionalsNargsZeroOrMoreNone(TestCase):
     ]
 
 
-class TestPositionalsNargsOneOrMoreNone(TestCase):
+class TestPositionalsNargsOneOrMoreNone(ParserTestCase):
     """Test a Positional with one or more nargs followed by one with none"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [Sig('foo', nargs='+'), Sig('bar')]
     failures = ['', '--foo', 'a']
@@ -865,9 +829,8 @@ class TestPositionalsNargsOneOrMoreNone(TestCase):
     ]
 
 
-class TestPositionalsNargsOptionalNone(TestCase):
+class TestPositionalsNargsOptionalNone(ParserTestCase):
     """Test a Positional with an Optional nargs followed by one with none"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [Sig('foo', nargs='?', default=42), Sig('bar')]
     failures = ['', '--foo', 'a b c']
@@ -877,9 +840,8 @@ class TestPositionalsNargsOptionalNone(TestCase):
     ]
 
 
-class TestPositionalsNargs2ZeroOrMore(TestCase):
+class TestPositionalsNargs2ZeroOrMore(ParserTestCase):
     """Test a Positional with 2 nargs followed by one with unlimited"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [Sig('foo', nargs=2), Sig('bar', nargs='*')]
     failures = ['', '--foo', 'a']
@@ -889,9 +851,8 @@ class TestPositionalsNargs2ZeroOrMore(TestCase):
     ]
 
 
-class TestPositionalsNargs2OneOrMore(TestCase):
+class TestPositionalsNargs2OneOrMore(ParserTestCase):
     """Test a Positional with 2 nargs followed by one with one or more"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [Sig('foo', nargs=2), Sig('bar', nargs='+')]
     failures = ['', '--foo', 'a', 'a b']
@@ -900,9 +861,8 @@ class TestPositionalsNargs2OneOrMore(TestCase):
     ]
 
 
-class TestPositionalsNargs2Optional(TestCase):
+class TestPositionalsNargs2Optional(ParserTestCase):
     """Test a Positional with 2 nargs followed by one optional"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [Sig('foo', nargs=2), Sig('bar', nargs='?')]
     failures = ['', '--foo', 'a', 'a b c d']
@@ -912,9 +872,8 @@ class TestPositionalsNargs2Optional(TestCase):
     ]
 
 
-class TestPositionalsNargsZeroOrMore1(TestCase):
+class TestPositionalsNargsZeroOrMore1(ParserTestCase):
     """Test a Positional with unlimited nargs followed by one with 1"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [Sig('foo', nargs='*'), Sig('bar', nargs=1)]
     failures = ['', '--foo', ]
@@ -925,9 +884,8 @@ class TestPositionalsNargsZeroOrMore1(TestCase):
     ]
 
 
-class TestPositionalsNargsOneOrMore1(TestCase):
+class TestPositionalsNargsOneOrMore1(ParserTestCase):
     """Test a Positional with one or more nargs followed by one with 1"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [Sig('foo', nargs='+'), Sig('bar', nargs=1)]
     failures = ['', '--foo', 'a']
@@ -937,9 +895,8 @@ class TestPositionalsNargsOneOrMore1(TestCase):
     ]
 
 
-class TestPositionalsNargsOptional1(TestCase):
+class TestPositionalsNargsOptional1(ParserTestCase):
     """Test a Positional with an Optional nargs followed by one with 1"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [Sig('foo', nargs='?'), Sig('bar', nargs=1)]
     failures = ['', '--foo', 'a b c']
@@ -949,9 +906,8 @@ class TestPositionalsNargsOptional1(TestCase):
     ]
 
 
-class TestPositionalsNargsNoneZeroOrMore1(TestCase):
+class TestPositionalsNargsNoneZeroOrMore1(ParserTestCase):
     """Test three Positionals: no nargs, unlimited nargs and 1 nargs"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [
         Sig('foo'),
@@ -965,9 +921,8 @@ class TestPositionalsNargsNoneZeroOrMore1(TestCase):
     ]
 
 
-class TestPositionalsNargsNoneOneOrMore1(TestCase):
+class TestPositionalsNargsNoneOneOrMore1(ParserTestCase):
     """Test three Positionals: no nargs, one or more nargs and 1 nargs"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [
         Sig('foo'),
@@ -981,9 +936,8 @@ class TestPositionalsNargsNoneOneOrMore1(TestCase):
     ]
 
 
-class TestPositionalsNargsNoneOptional1(TestCase):
+class TestPositionalsNargsNoneOptional1(ParserTestCase):
     """Test three Positionals: no nargs, optional narg and 1 nargs"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [
         Sig('foo'),
@@ -997,9 +951,8 @@ class TestPositionalsNargsNoneOptional1(TestCase):
     ]
 
 
-class TestPositionalsNargsOptionalOptional(TestCase):
+class TestPositionalsNargsOptionalOptional(ParserTestCase):
     """Test two optional nargs"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [
         Sig('foo', nargs='?'),
@@ -1013,9 +966,8 @@ class TestPositionalsNargsOptionalOptional(TestCase):
     ]
 
 
-class TestPositionalsNargsOptionalZeroOrMore(TestCase):
+class TestPositionalsNargsOptionalZeroOrMore(ParserTestCase):
     """Test an Optional narg followed by unlimited nargs"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [Sig('foo', nargs='?'), Sig('bar', nargs='*')]
     failures = ['--foo']
@@ -1027,9 +979,8 @@ class TestPositionalsNargsOptionalZeroOrMore(TestCase):
     ]
 
 
-class TestPositionalsNargsOptionalOneOrMore(TestCase):
+class TestPositionalsNargsOptionalOneOrMore(ParserTestCase):
     """Test an Optional narg followed by one or more nargs"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [Sig('foo', nargs='?'), Sig('bar', nargs='+')]
     failures = ['', '--foo']
@@ -1040,9 +991,8 @@ class TestPositionalsNargsOptionalOneOrMore(TestCase):
     ]
 
 
-class TestPositionalsChoicesString(TestCase):
+class TestPositionalsChoicesString(ParserTestCase):
     """Test a set of single-character choices"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [Sig('spam', choices=set('abcdefg'))]
     failures = ['', '--foo', 'h', '42', 'ef']
@@ -1052,9 +1002,8 @@ class TestPositionalsChoicesString(TestCase):
     ]
 
 
-class TestPositionalsChoicesInt(TestCase):
+class TestPositionalsChoicesInt(ParserTestCase):
     """Test a set of integer choices"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [Sig('spam', type=int, choices=range(20))]
     failures = ['', '--foo', 'h', '42', 'ef']
@@ -1064,9 +1013,8 @@ class TestPositionalsChoicesInt(TestCase):
     ]
 
 
-class TestPositionalsActionAppend(TestCase):
+class TestPositionalsActionAppend(ParserTestCase):
     """Test the 'append' action"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [
         Sig('spam', action='append'),
@@ -1081,9 +1029,8 @@ class TestPositionalsActionAppend(TestCase):
 # Combined optionals and positionals tests
 # ========================================
 
-class TestOptionalsNumericAndPositionals(TestCase):
+class TestOptionalsNumericAndPositionals(ParserTestCase):
     """Tests negative number args when numeric options are present"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [
         Sig('x', nargs='?'),
@@ -1098,9 +1045,8 @@ class TestOptionalsNumericAndPositionals(TestCase):
     ]
 
 
-class TestNargsZeroOrMore(TestCase):
+class TestNargsZeroOrMore(ParserTestCase):
     """Tests specifying an args for an Optional that accepts zero or more"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [Sig('-x', nargs='*'), Sig('y', nargs='*')]
     failures = []
@@ -1115,9 +1061,8 @@ class TestNargsZeroOrMore(TestCase):
     ]
 
 
-class TestOptionLike(TestCase):
+class TestOptionLike(ParserTestCase):
     """Tests options that may or may not be arguments"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [
         Sig('-x', type=float),
@@ -1143,9 +1088,8 @@ class TestOptionLike(TestCase):
     ]
 
 
-class TestDefaultSuppress(TestCase):
+class TestDefaultSuppress(ParserTestCase):
     """Test actions with suppressed defaults"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [
         Sig('foo', nargs='?', default=argparse.SUPPRESS),
@@ -1163,9 +1107,8 @@ class TestDefaultSuppress(TestCase):
     ]
 
 
-class TestParserDefaultSuppress(TestCase):
+class TestParserDefaultSuppress(ParserTestCase):
     """Test actions with a parser-level default of SUPPRESS"""
-    __metaclass__ = ParserTesterMetaclass
 
     parser_signature = Sig(argument_default=argparse.SUPPRESS)
     argument_signatures = [
@@ -1184,9 +1127,8 @@ class TestParserDefaultSuppress(TestCase):
     ]
 
 
-class TestParserDefault42(TestCase):
+class TestParserDefault42(ParserTestCase):
     """Test actions with a parser-level default of 42"""
-    __metaclass__ = ParserTesterMetaclass
 
     parser_signature = Sig(argument_default=42, version='1.0')
     argument_signatures = [
@@ -1245,12 +1187,13 @@ class RFile(object):
         else:
             text = self.seen[other] = other.read()
             other.close()
+        if not isinstance(text, str):
+            text = text.decode('ascii')
         return self.name == other.name == text
 
 
-class TestFileTypeR(TempDirMixin, TestCase):
+class TestFileTypeR(TempDirMixin, ParserTestCase):
     """Test the FileType option/argument type for reading files"""
-    __metaclass__ = ParserTesterMetaclass
 
     def setUp(self):
         super(TestFileTypeR, self).setUp()
@@ -1272,9 +1215,8 @@ class TestFileTypeR(TempDirMixin, TestCase):
     ]
 
 
-class TestFileTypeRB(TempDirMixin, TestCase):
+class TestFileTypeRB(TempDirMixin, ParserTestCase):
     """Test the FileType option/argument type for reading files"""
-    __metaclass__ = ParserTesterMetaclass
 
     def setUp(self):
         super(TestFileTypeRB, self).setUp()
@@ -1304,15 +1246,17 @@ class WFile(object):
 
     def __eq__(self, other):
         if other not in self.seen:
-            other.write('Check that file is writable.')
+            text = 'Check that file is writable.'
+            if 'b' in other.mode:
+                text = text.encode('ascii')
+            other.write(text)
             other.close()
             self.seen.add(other)
         return self.name == other.name
 
 
-class TestFileTypeW(TempDirMixin, TestCase):
+class TestFileTypeW(TempDirMixin, ParserTestCase):
     """Test the FileType option/argument type for writing files"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [
         Sig('-x', type=argparse.FileType('w')),
@@ -1327,8 +1271,7 @@ class TestFileTypeW(TempDirMixin, TestCase):
     ]
 
 
-class TestFileTypeWB(TempDirMixin, TestCase):
-    __metaclass__ = ParserTesterMetaclass
+class TestFileTypeWB(TempDirMixin, ParserTestCase):
 
     argument_signatures = [
         Sig('-x', type=argparse.FileType('wb')),
@@ -1343,9 +1286,8 @@ class TestFileTypeWB(TempDirMixin, TestCase):
     ]
 
 
-class TestTypeCallable(TestCase):
+class TestTypeCallable(ParserTestCase):
     """Test some callables as option/argument types"""
-    __metaclass__ = ParserTesterMetaclass
 
     argument_signatures = [
         Sig('--eggs', type=complex),
@@ -1359,9 +1301,8 @@ class TestTypeCallable(TestCase):
     ]
 
 
-class TestTypeUserDefined(TestCase):
+class TestTypeUserDefined(ParserTestCase):
     """Test a user-defined option/argument type"""
-    __metaclass__ = ParserTesterMetaclass
 
     class MyType(TestCase):
 
@@ -1408,10 +1349,8 @@ class TestTypeRegistration(TestCase):
 # Action tests
 # ============
 
-class TestActionUserDefined(TestCase):
-
+class TestActionUserDefined(ParserTestCase):
     """Test a user-defined option/argument action"""
-    __metaclass__ = ParserTesterMetaclass
 
     class OptionalAction(argparse.Action):
 
@@ -1431,7 +1370,8 @@ class TestActionUserDefined(TestCase):
                     raise AssertionError('value: %s' % value)
                 assert expected_ns == namespace, ('expected %s, got %s' %
                                                   (expected_ns, namespace))
-            except AssertionError, e:
+            except AssertionError:
+                e = sys.exc_info()[1]
                 raise ArgumentParserError('opt_action failed: %s' % e)
             setattr(namespace, 'spam', value)
 
@@ -1456,7 +1396,8 @@ class TestActionUserDefined(TestCase):
                     raise AssertionError('value: %s' % value)
                 assert expected_ns == namespace, ('expected %s, got %s' %
                                                   (expected_ns, namespace))
-            except AssertionError, e:
+            except AssertionError:
+                e = sys.exc_info()[1]
                 raise ArgumentParserError('arg_action failed: %s' % e)
             setattr(namespace, 'badger', value)
 
@@ -1610,10 +1551,11 @@ class TestAddSubparsers(TestCase):
     def _test_subparser_help(self, args_str, expected_help):
         try:
             self.parser.parse_args(args_str.split())
-        except ArgumentParserError, err:
+        except ArgumentParserError:
+            err = sys.exc_info()[1]
             if err.message != expected_help:
-                print repr(expected_help)
-                print repr(err.message)
+                print(repr(expected_help))
+                print(repr(err.message))
             self.assertEqual(err.message, expected_help)
 
     def test_subparser1_help(self):
@@ -2165,7 +2107,9 @@ class TestSetDefaults(TestCase):
 
 class TestHelpFormattingMetaclass(type):
 
-    def __init__(cls, *args):
+    def __init__(cls, name, bases, bodydict):
+        if name == 'HelpTestCase':
+            return
 
         class AddTests(object):
 
@@ -2202,11 +2146,11 @@ class TestHelpFormattingMetaclass(type):
                 expected_text = getattr(tester, self.func_suffix)
                 expected_text = textwrap.dedent(expected_text)
                 if expected_text != parser_text:
-                    print repr(expected_text)
-                    print repr(parser_text)
+                    print(repr(expected_text))
+                    print(repr(parser_text))
                     for char1, char2 in zip(expected_text, parser_text):
                         if char1 != char2:
-                            print 'first diff: %r %r' % (char1, char2)
+                            print('first diff: %r %r' % (char1, char2))
                             break
                 tester.assertEqual(expected_text, parser_text)
 
@@ -2219,7 +2163,7 @@ class TestHelpFormattingMetaclass(type):
                 parser = self._get_parser(tester)
                 print_ = getattr(parser, 'print_%s' % self.func_suffix)
                 oldstderr = sys.stderr
-                sys.stderr = StringIO.StringIO()
+                sys.stderr = StringIO()
                 try:
                     print_()
                     parser_text = sys.stderr.getvalue()
@@ -2230,7 +2174,7 @@ class TestHelpFormattingMetaclass(type):
             def test_print_file(self, tester):
                 parser = self._get_parser(tester)
                 print_ = getattr(parser, 'print_%s' % self.func_suffix)
-                sfile = StringIO.StringIO()
+                sfile = StringIO()
                 print_(sfile)
                 parser_text = sfile.getvalue()
                 self._test(tester, parser_text)
@@ -2239,10 +2183,12 @@ class TestHelpFormattingMetaclass(type):
         for func_suffix in ['usage', 'help', 'version']:
             AddTests(cls, func_suffix)
 
+bases = TestCase,
+HelpTestCase = TestHelpFormattingMetaclass('HelpTestCase', bases, {})
 
-class TestHelpBiggerOptionals(TestCase):
+
+class TestHelpBiggerOptionals(HelpTestCase):
     """Make sure that argument help aligns when options are longer"""
-    __metaclass__ = TestHelpFormattingMetaclass
 
     parser_signature = Sig(prog='PROG', description='DESCRIPTION',
                            epilog='EPILOG', version='0.1')
@@ -2277,9 +2223,8 @@ class TestHelpBiggerOptionals(TestCase):
         '''
 
 
-class TestHelpBiggerOptionalGroups(TestCase):
+class TestHelpBiggerOptionalGroups(HelpTestCase):
     """Make sure that argument help aligns when options are longer"""
-    __metaclass__ = TestHelpFormattingMetaclass
 
     parser_signature = Sig(prog='PROG', description='DESCRIPTION',
                            epilog='EPILOG', version='0.1')
@@ -2324,9 +2269,8 @@ class TestHelpBiggerOptionalGroups(TestCase):
         '''
 
 
-class TestHelpBiggerPositionals(TestCase):
+class TestHelpBiggerPositionals(HelpTestCase):
     """Make sure that help aligns when arguments are longer"""
-    __metaclass__ = TestHelpFormattingMetaclass
 
     parser_signature = Sig(usage='USAGE', description='DESCRIPTION')
     argument_signatures = [
@@ -2356,9 +2300,8 @@ class TestHelpBiggerPositionals(TestCase):
     version = ''
 
 
-class TestHelpReformatting(TestCase):
+class TestHelpReformatting(HelpTestCase):
     """Make sure that text after short names starts on the first line"""
-    __metaclass__ = TestHelpFormattingMetaclass
 
     parser_signature = Sig(
         prog='PROG',
@@ -2409,9 +2352,8 @@ be wrapped
     version = ''
 
 
-class TestHelpWrappingShortNames(TestCase):
+class TestHelpWrappingShortNames(HelpTestCase):
     """Make sure that text after short names starts on the first line"""
-    __metaclass__ = TestHelpFormattingMetaclass
 
     parser_signature = Sig(prog='PROG', description= 'D\nD' * 30)
     argument_signatures = [
@@ -2450,9 +2392,8 @@ HHAAHHH
     version = ''
 
 
-class TestHelpWrappingLongNames(TestCase):
+class TestHelpWrappingLongNames(HelpTestCase):
     """Make sure that text after long names starts on the next line"""
-    __metaclass__ = TestHelpFormattingMetaclass
 
     parser_signature = Sig(usage='USAGE', description= 'D D' * 30,
                            version='V V'*30)
@@ -2505,9 +2446,8 @@ VV VV VV
         '''
 
 
-class TestHelpUsage(TestCase):
+class TestHelpUsage(HelpTestCase):
     """Test basic usage messages"""
-    __metaclass__ = TestHelpFormattingMetaclass
 
     parser_signature = Sig(prog='PROG')
     argument_signatures = [
@@ -2550,9 +2490,8 @@ class TestHelpUsage(TestCase):
     version = ''
 
 
-class TestHelpOnlyUserGroups(TestCase):
+class TestHelpOnlyUserGroups(HelpTestCase):
     """Test basic usage messages"""
-    __metaclass__ = TestHelpFormattingMetaclass
 
     parser_signature = Sig(prog='PROG', add_help=False)
     argument_signatures = []
@@ -2582,9 +2521,8 @@ class TestHelpOnlyUserGroups(TestCase):
     version = ''
 
 
-class TestHelpUsageOptionalsWrap(TestCase):
+class TestHelpUsageOptionalsWrap(HelpTestCase):
     """Test usage messages where the optionals wrap"""
-    __metaclass__ = TestHelpFormattingMetaclass
 
     parser_signature = Sig(prog='PROG')
     argument_signatures = [
@@ -2621,9 +2559,8 @@ class TestHelpUsageOptionalsWrap(TestCase):
     version = ''
 
 
-class TestHelpUsagePositionalsWrap(TestCase):
+class TestHelpUsagePositionalsWrap(HelpTestCase):
     """Test usage messages where the positionals wrap"""
-    __metaclass__ = TestHelpFormattingMetaclass
 
     parser_signature = Sig(prog='PROG')
     argument_signatures = [
@@ -2656,9 +2593,8 @@ class TestHelpUsagePositionalsWrap(TestCase):
     version = ''
 
 
-class TestHelpUsageOptionalsPositionalsWrap(TestCase):
+class TestHelpUsageOptionalsPositionalsWrap(HelpTestCase):
     """Test usage messages where the optionals and positionals wrap"""
-    __metaclass__ = TestHelpFormattingMetaclass
 
     parser_signature = Sig(prog='PROG')
     argument_signatures = [
@@ -2693,9 +2629,8 @@ class TestHelpUsageOptionalsPositionalsWrap(TestCase):
     version = ''
 
 
-class TestHelpUsageOptionalsOnlyWrap(TestCase):
+class TestHelpUsageOptionalsOnlyWrap(HelpTestCase):
     """Test usage messages where there are only optionals and they wrap"""
-    __metaclass__ = TestHelpFormattingMetaclass
 
     parser_signature = Sig(prog='PROG')
     argument_signatures = [
@@ -2720,9 +2655,8 @@ class TestHelpUsageOptionalsOnlyWrap(TestCase):
     version = ''
 
 
-class TestHelpUsagePositionalsOnlyWrap(TestCase):
+class TestHelpUsagePositionalsOnlyWrap(HelpTestCase):
     """Test usage messages where there are only positionals and they wrap"""
-    __metaclass__ = TestHelpFormattingMetaclass
 
     parser_signature = Sig(prog='PROG', add_help=False)
     argument_signatures = [
@@ -2745,9 +2679,8 @@ class TestHelpUsagePositionalsOnlyWrap(TestCase):
     version = ''
 
 
-class TestHelpVariableExpansion(TestCase):
+class TestHelpVariableExpansion(HelpTestCase):
     """Test that variables are expanded properly in help messages"""
-    __metaclass__ = TestHelpFormattingMetaclass
 
     parser_signature = Sig(prog='PROG')
     argument_signatures = [
@@ -2792,9 +2725,8 @@ class TestHelpVariableExpansion(TestCase):
     version = ''
 
 
-class TestHelpSuppressUsage(TestCase):
+class TestHelpSuppressUsage(HelpTestCase):
     """Test that items can be suppressed in usage messages"""
-    __metaclass__ = TestHelpFormattingMetaclass
 
     parser_signature = Sig(prog='PROG', usage=argparse.SUPPRESS)
     argument_signatures = [
@@ -2814,9 +2746,8 @@ class TestHelpSuppressUsage(TestCase):
     version = ''
 
 
-class TestHelpSuppressOptional(TestCase):
+class TestHelpSuppressOptional(HelpTestCase):
     """Test that optional arguments can be suppressed in help messages"""
-    __metaclass__ = TestHelpFormattingMetaclass
 
     parser_signature = Sig(prog='PROG', add_help=False)
     argument_signatures = [
@@ -2835,9 +2766,8 @@ class TestHelpSuppressOptional(TestCase):
     version = ''
 
 
-class TestHelpSuppressOptionalGroup(TestCase):
+class TestHelpSuppressOptionalGroup(HelpTestCase):
     """Test that optional groups can be suppressed in help messages"""
-    __metaclass__ = TestHelpFormattingMetaclass
 
     parser_signature = Sig(prog='PROG')
     argument_signatures = [
@@ -2862,9 +2792,8 @@ class TestHelpSuppressOptionalGroup(TestCase):
     version = ''
 
 
-class TestHelpSuppressPositional(TestCase):
+class TestHelpSuppressPositional(HelpTestCase):
     """Test that positional arguments can be suppressed in help messages"""
-    __metaclass__ = TestHelpFormattingMetaclass
 
     parser_signature = Sig(prog='PROG')
     argument_signatures = [
@@ -2884,9 +2813,8 @@ class TestHelpSuppressPositional(TestCase):
     version = ''
 
 
-class TestHelpRequiredOptional(TestCase):
+class TestHelpRequiredOptional(HelpTestCase):
     """Test that required options don't look optional"""
-    __metaclass__ = TestHelpFormattingMetaclass
 
     parser_signature = Sig(prog='PROG')
     argument_signatures = [
@@ -2905,9 +2833,8 @@ class TestHelpRequiredOptional(TestCase):
     version = ''
 
 
-class TestHelpAlternatePrefixChars(TestCase):
+class TestHelpAlternatePrefixChars(HelpTestCase):
     """Test that options display with different prefix characters"""
-    __metaclass__ = TestHelpFormattingMetaclass
 
     parser_signature = Sig(prog='PROG', prefix_chars='^;', add_help=False)
     argument_signatures = [
@@ -2927,9 +2854,8 @@ class TestHelpAlternatePrefixChars(TestCase):
     version = ''
 
 
-class TestHelpNoHelpOptional(TestCase):
+class TestHelpNoHelpOptional(HelpTestCase):
     """Test that the --help argument can be suppressed help messages"""
-    __metaclass__ = TestHelpFormattingMetaclass
 
     parser_signature = Sig(prog='PROG', add_help=False)
     argument_signatures = [
@@ -2951,9 +2877,8 @@ class TestHelpNoHelpOptional(TestCase):
     version = ''
 
 
-class TestHelpVersionOptional(TestCase):
+class TestHelpVersionOptional(HelpTestCase):
     """Test that the --version argument can be suppressed help messages"""
-    __metaclass__ = TestHelpFormattingMetaclass
 
     parser_signature = Sig(prog='PROG', version='1.0')
     argument_signatures = [
@@ -2979,9 +2904,8 @@ class TestHelpVersionOptional(TestCase):
         '''
 
 
-class TestHelpNone(TestCase):
+class TestHelpNone(HelpTestCase):
     """Test that no errors occur if no help is specified"""
-    __metaclass__ = TestHelpFormattingMetaclass
 
     parser_signature = Sig(prog='PROG')
     argument_signatures = [
@@ -3004,9 +2928,8 @@ class TestHelpNone(TestCase):
     version = ''
 
 
-class TestHelpRawText(TestCase):
+class TestHelpRawText(HelpTestCase):
     """Test the RawTextHelpFormatter"""
-    __metaclass__ = TestHelpFormattingMetaclass
 
     parser_signature = Sig(
         prog='PROG', formatter_class=argparse.RawTextHelpFormatter,
@@ -3054,9 +2977,8 @@ class TestHelpRawText(TestCase):
     version = ''
 
 
-class TestHelpRawDescription(TestCase):
+class TestHelpRawDescription(HelpTestCase):
     """Test the RawTextHelpFormatter"""
-    __metaclass__ = TestHelpFormattingMetaclass
 
     parser_signature = Sig(
         prog='PROG', formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -3296,7 +3218,8 @@ class TestOptionalsHelpVersionActions(TestCase):
     def _get_error_message(self, func, *args, **kwargs):
         try:
             func(*args, **kwargs)
-        except ArgumentParserError, err:
+        except ArgumentParserError:
+            err = sys.exc_info()[1]
             return err.message
         else:
             self.assertRaises(ArgumentParserError, func, *args, **kwargs)
@@ -3456,6 +3379,9 @@ class TestEncoding(TestCase):
 
     def test_argparse_module_encoding(self):
         text = codecs.open(argparse.__file__, 'r', 'utf8').read()
+
+    def test_test_argparse_module_encoding(self):
+        text = codecs.open(__file__, 'r', 'utf8').read()
 
 if __name__ == '__main__':
     unittest.main()
