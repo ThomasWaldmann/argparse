@@ -217,9 +217,9 @@ class ParserTesterMetaclass(type):
 bases = TestCase,
 ParserTestCase = ParserTesterMetaclass('ParserTestCase', bases, {})
 
-# ============
-# Optional tests
-# ============
+# ===============
+# Optionals tests
+# ===============
 
 class TestOptionalsSingleDash(ParserTestCase):
     """Test an Optional with a single-dash option string"""
