@@ -203,8 +203,9 @@ class ParserTesterMetaclass(type):
 
             def test_successes(self, tester):
                 parser = self._get_parser(tester)
-                for args_str, expected_ns in tester.successes:
-                    args = args_str.split()
+                for args, expected_ns in tester.successes:
+                    if isinstance(args, str):
+                        args = args.split()
                     result_ns = self._parse_args(parser, args)
                     tester.assertEqual(expected_ns, result_ns)
 
@@ -1042,6 +1043,23 @@ class TestOptionalsNumericAndPositionals(ParserTestCase):
         ('a', NS(x='a', y=False)),
         ('-4', NS(x=None, y=True)),
         ('-4 a', NS(x='a', y=True)),
+    ]
+
+
+class TestEmptyAndSpaceContainingArguments(ParserTestCase):
+
+    argument_signatures = [
+        Sig('x', nargs='?'),
+        Sig('-y'),
+    ]
+    failures = ['-y']
+    successes = [
+        ([''], NS(x='', y=None)),
+        (['a badger'], NS(x='a badger', y=None)),
+        (['-a badger'], NS(x='-a badger', y=None)),
+        (['-y', ''], NS(x=None, y='')),
+        (['-y', 'a badger'], NS(x=None, y='a badger')),
+        (['-y', '-a badger'], NS(x=None, y='-a badger')),
     ]
 
 

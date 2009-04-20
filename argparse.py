@@ -1785,6 +1785,14 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
         return result
 
     def _parse_optional(self, arg_string):
+        # if it's an empty string, it was meant to be a positional
+        if not arg_string:
+            return None
+
+        # if it contains a space, it was meant to be a positional
+        if ' ' in arg_string:
+            return None
+
         # if it doesn't start with a prefix, it was meant to be positional
         if not arg_string[0] in self.prefix_chars:
             return None
