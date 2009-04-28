@@ -72,7 +72,7 @@ considered public as object names -- the API of the formatter objects is
 still considered an implementation detail.)
 """
 
-__version__ = '0.9.0'
+__version__ = '0.9.1'
 
 import os as _os
 import re as _re

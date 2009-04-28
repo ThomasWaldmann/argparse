@@ -19,7 +19,7 @@ import distutils.core
 
 distutils.core.setup(
     name='argparse',
-    version='0.9.0',
+    version='0.9.1',
     author='Steven Bethard',
     author_email='steven.bethard@gmail.com',
     url='http://argparse.python-hosting.com/',
@@ -33,10 +33,10 @@ distutils.core.setup(
         optparse so popular."""),
     license='Apache 2.0',
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Environment :: Console',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: BSD License',
+        'License :: OSI Approved :: Apache Software License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Topic :: Software Development',
