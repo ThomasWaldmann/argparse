@@ -22,7 +22,7 @@ distutils.core.setup(
     version='0.9.1',
     author='Steven Bethard',
     author_email='steven.bethard@gmail.com',
-    url='http://argparse.python-hosting.com/',
+    url='http://code.google.com/p/argparse/',
     description='An optparse-inspired command-line parsing library',
     long_description = textwrap.dedent("""\
         Argparse takes the best of the optparse command-line parsing module
