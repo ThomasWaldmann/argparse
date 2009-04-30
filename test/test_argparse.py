@@ -33,6 +33,9 @@ class TestCase(unittest.TestCase):
 
     def assertEqual(self, obj1, obj2):
         if obj1 != obj2:
+            print('')
+            print(repr(obj1))
+            print(repr(obj2))
             print(obj1)
             print(obj2)
         super(TestCase, self).assertEqual(obj1, obj2)
@@ -1832,6 +1835,49 @@ class TestMutuallyExclusiveSimple(MEMixin, TestCase):
           --bar BAR    bar help
           --baz [BAZ]  baz help
         '''
+
+
+class TestMutuallyExclusiveLong(MEMixin, TestCase):
+
+    def get_parser(self, required=None):
+        parser = ErrorRaisingArgumentParser(prog='PROG')
+        parser.add_argument('--abcde', help='abcde help')
+        parser.add_argument('--fghij', help='fghij help')
+        group = parser.add_mutually_exclusive_group(required=required)
+        group.add_argument('--klmno', help='klmno help')
+        group.add_argument('--pqrst', help='pqrst help')
+        return parser
+
+    failures = ['--klmno X --pqrst Y']
+    successes = [
+        ('--klmno X', NS(abcde=None, fghij=None, klmno='X', pqrst=None)),
+        ('--abcde Y --klmno X',
+            NS(abcde='Y', fghij=None, klmno='X', pqrst=None)),
+        ('--pqrst X', NS(abcde=None, fghij=None, klmno=None, pqrst='X')),
+        ('--pqrst X --fghij Y',
+            NS(abcde=None, fghij='Y', klmno=None, pqrst='X')),
+    ]
+    successes_when_not_required = [
+        ('', NS(abcde=None, fghij=None, klmno=None, pqrst=None)),
+    ]
+
+    usage_when_not_required = '''\
+    usage: PROG [-h] [--abcde ABCDE] [--fghij FGHIJ] [--klmno KLMNO | --pqrst
+                PQRST]
+    '''
+    usage_when_required = '''\
+    usage: PROG [-h] [--abcde ABCDE] [--fghij FGHIJ] (--klmno KLMNO | --pqrst
+                PQRST)
+    '''
+    help = '''\
+
+    optional arguments:
+      -h, --help     show this help message and exit
+      --abcde ABCDE  abcde help
+      --fghij FGHIJ  fghij help
+      --klmno KLMNO  klmno help
+      --pqrst PQRST  pqrst help
+    '''
 
 
 class TestMutuallyExclusiveFirstSuppressed(MEMixin, TestCase):

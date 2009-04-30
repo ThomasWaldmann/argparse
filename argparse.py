@@ -338,8 +338,11 @@ class HelpFormatter(object):
         group_actions = set()
         inserts = {}
         for group in groups:
-            start = actions.index(group._group_actions[0])
-            if start != -1:
+            try:
+                start = actions.index(group._group_actions[0])
+            except ValueError:
+                continue
+            else:
                 end = start + len(group._group_actions)
                 if actions[start:end] == group._group_actions:
                     for action in group._group_actions:
