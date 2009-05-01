@@ -20,13 +20,28 @@ import sys
 import textwrap
 import tempfile
 import unittest
+import argparse
 
 try:
     from StringIO import StringIO
 except ImportError:
     from io import StringIO
 
-import argparse
+try:
+    set
+except NameError:
+    from sets import Set as set
+
+try:
+    sorted
+except NameError:
+
+    def sorted(iterable, reverse=False):
+        result = list(iterable)
+        result.sort()
+        if reverse:
+            result.reverse()
+        return result
 
 
 class TestCase(unittest.TestCase):
@@ -55,7 +70,7 @@ class NS(object):
 
     def __repr__(self):
         sorted_items = sorted(self.__dict__.items())
-        kwarg_str = ', '.join('%s=%r' % tup for tup in sorted_items)
+        kwarg_str = ', '.join(['%s=%r' % tup for tup in sorted_items])
         return '%s(%s)' % (type(self).__name__, kwarg_str)
 
     def __eq__(self, other):
@@ -187,7 +202,10 @@ class ParserTesterMetaclass(type):
 
                     def wrapper(self, test_func=test_func):
                         test_func(self)
-                    wrapper.__name__ = test_name
+                    try:
+                        wrapper.__name__ = test_name
+                    except TypeError:
+                        pass
                     setattr(tester_cls, test_name, wrapper)
 
             def _get_parser(self, tester):
@@ -2187,7 +2205,10 @@ class TestHelpFormattingMetaclass(type):
 
                     def test_wrapper(self, test_func=test_func):
                         test_func(self)
-                    test_wrapper.__name__ = test_name
+                    try:
+                        test_wrapper.__name__ = test_name
+                    except TypeError:
+                        pass
                     setattr(test_class, test_name, test_wrapper)
 
             def _get_parser(self, tester):

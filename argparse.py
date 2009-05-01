@@ -82,9 +82,26 @@ import textwrap as _textwrap
 from gettext import gettext as _
 
 try:
+    set
+except NameError:
+    from sets import Set as set
+
+try:
     basestring
 except NameError:
     basestring = str
+
+try:
+    sorted
+except NameError:
+
+    def sorted(iterable, reverse=False):
+        result = list(iterable)
+        result.sort()
+        if reverse:
+            result.reverse()
+        return result
+
 
 SUPPRESS = '==SUPPRESS=='
 
@@ -190,7 +207,7 @@ class HelpFormatter(object):
             join = self.formatter._join_parts
             for func, args in self.items:
                 func(*args)
-            item_help = join(func(*args) for func, args in self.items)
+            item_help = join([func(*args) for func, args in self.items])
             if self.parent is not None:
                 self.formatter._dedent()
 
@@ -243,7 +260,7 @@ class HelpFormatter(object):
                 invocations.append(get_invocation(subaction))
 
             # update the maximum item length
-            invocation_length = max(len(s) for s in invocations)
+            invocation_length = max([len(s) for s in invocations])
             action_length = invocation_length + self._current_indent
             self._action_max_length = max(self._action_max_length,
                                           action_length)
@@ -266,9 +283,9 @@ class HelpFormatter(object):
         return help
 
     def _join_parts(self, part_strings):
-        return ''.join(part
-                       for part in part_strings
-                       if part and part is not SUPPRESS)
+        return ''.join([part
+                        for part in part_strings
+                        if part and part is not SUPPRESS])
 
     def _format_usage(self, usage, actions, groups, prefix):
         if prefix is None:
@@ -409,7 +426,7 @@ class HelpFormatter(object):
             parts[i:i] = [inserts[i]]
 
         # join all the action items with spaces
-        text = ' '.join(item for item in parts if item is not None)
+        text = ' '.join([item for item in parts if item is not None])
 
         # clean up separators for mutually exclusive groups
         open = r'[\[(]'
@@ -501,7 +518,7 @@ class HelpFormatter(object):
         if action.metavar is not None:
             name = action.metavar
         elif action.choices is not None:
-            choice_strs = (str(choice) for choice in action.choices)
+            choice_strs = [str(choice) for choice in action.choices]
             name = '{%s}' % ','.join(choice_strs)
         else:
             name = default_metavar
@@ -529,7 +546,7 @@ class HelpFormatter(object):
             if params[name] is SUPPRESS:
                 del params[name]
         if params.get('choices') is not None:
-            choices_str = ', '.join(str(c) for c in params['choices'])
+            choices_str = ', '.join([str(c) for c in params['choices']])
             params['choices'] = choices_str
         return action.help % params
 
@@ -557,7 +574,7 @@ class HelpFormatter(object):
 class RawDescriptionHelpFormatter(HelpFormatter):
 
     def _fill_text(self, text, width, indent):
-        return ''.join(indent + line for line in text.splitlines(True))
+        return ''.join([indent + line for line in text.splitlines(True)])
 
 
 class RawTextHelpFormatter(RawDescriptionHelpFormatter):
@@ -1010,7 +1027,7 @@ class FileType(object):
 
     def __repr__(self):
         args = [self._mode, self._bufsize]
-        args_str = ', '.join(repr(arg) for arg in args if arg is not None)
+        args_str = ', '.join([repr(arg) for arg in args if arg is not None])
         return '%s(%s)' % (type(self).__name__, args_str)
 
 # ===========================
@@ -1288,9 +1305,9 @@ class _ActionsContainer(object):
 
     def _handle_conflict_error(self, action, conflicting_actions):
         message = _('conflicting option string(s): %s')
-        conflict_string = ', '.join(option_string
-                                    for option_string, action
-                                    in conflicting_actions)
+        conflict_string = ', '.join([option_string
+                                     for option_string, action
+                                     in conflicting_actions])
         raise ArgumentError(action, message % conflict_string)
 
     def _handle_conflict_resolve(self, action, conflicting_actions):
@@ -1687,10 +1704,10 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
         while start_index <= max_option_string_index:
 
             # consume any Positionals preceding the next option
-            next_option_string_index = min(
+            next_option_string_index = min([
                 index
                 for index in option_string_indices
-                if index >= start_index)
+                if index >= start_index])
             if start_index != next_option_string_index:
                 positionals_end_index = consume_positionals(start_index)
 
@@ -1777,11 +1794,11 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
         result = []
         for i in range(len(actions), 0, -1):
             actions_slice = actions[:i]
-            pattern = ''.join(self._get_nargs_pattern(action)
-                              for action in actions_slice)
+            pattern = ''.join([self._get_nargs_pattern(action)
+                               for action in actions_slice])
             match = _re.match(pattern, arg_strings_pattern)
             if match is not None:
-                result.extend(len(string) for string in match.groups())
+                result.extend([len(string) for string in match.groups()])
                 break
 
         # return the list of arg string counts
@@ -1815,7 +1832,8 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
 
         # if multiple actions match, the option string was ambiguous
         if len(option_tuples) > 1:
-            options = ', '.join(opt_str for _, opt_str, _ in option_tuples)
+            options = ', '.join([option_string
+                for action, option_string, explicit_arg in option_tuples])
             tup = arg_string, options
             self.error(_('ambiguous option: %s could match %s') % tup)
 
@@ -1953,12 +1971,12 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
 
         # PARSER arguments convert all values, but check only the first
         elif action.nargs is PARSER:
-            value = list(self._get_value(action, v) for v in arg_strings)
+            value = [self._get_value(action, v) for v in arg_strings]
             self._check_value(action, value[0])
 
         # all other types of nargs produce a list
         else:
-            value = list(self._get_value(action, v) for v in arg_strings)
+            value = [self._get_value(action, v) for v in arg_strings]
             for v in value:
                 self._check_value(action, v)
 
