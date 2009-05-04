@@ -72,8 +72,9 @@ considered public as object names -- the API of the formatter objects is
 still considered an implementation detail.)
 """
 
-__version__ = '0.9.1'
+__version__ = '0.9.2'
 
+import copy as _copy
 import os as _os
 import re as _re
 import sys as _sys
@@ -833,7 +834,9 @@ class _AppendAction(Action):
             metavar=metavar)
 
     def __call__(self, parser, namespace, values, option_string=None):
-        _ensure_value(namespace, self.dest, []).append(values)
+        items = _copy.copy(_ensure_value(namespace, self.dest, []))
+        items.append(values)
+        setattr(namespace, self.dest, items)
 
 
 class _AppendConstAction(Action):
@@ -857,7 +860,9 @@ class _AppendConstAction(Action):
             metavar=metavar)
 
     def __call__(self, parser, namespace, values, option_string=None):
-        _ensure_value(namespace, self.dest, []).append(self.const)
+        items = _copy.copy(_ensure_value(namespace, self.dest, []))
+        items.append(self.const)
+        setattr(namespace, self.dest, items)
 
 
 class _CountAction(Action):

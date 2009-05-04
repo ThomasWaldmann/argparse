@@ -632,6 +632,18 @@ class TestOptionalsActionAppend(ParserTestCase):
     ]
 
 
+class TestOptionalsActionAppendWithDefault(ParserTestCase):
+    """Tests the append action for an Optional"""
+
+    argument_signatures = [Sig('--baz', action='append', default=['X'])]
+    failures = ['a', '--baz', 'a --baz', '--baz a b']
+    successes = [
+        ('', NS(baz=['X'])),
+        ('--baz a', NS(baz=['X', 'a'])),
+        ('--baz a --baz b', NS(baz=['X', 'a', 'b'])),
+    ]
+
+
 class TestOptionalsActionAppendConst(ParserTestCase):
     """Tests the append_const action for an Optional"""
 
@@ -644,6 +656,21 @@ class TestOptionalsActionAppendConst(ParserTestCase):
         ('', NS(b=None)),
         ('-b', NS(b=[Exception])),
         ('-b -cx -b -cyz', NS(b=[Exception, 'x', Exception, 'yz'])),
+    ]
+
+
+class TestOptionalsActionAppendConstWithDefault(ParserTestCase):
+    """Tests the append_const action for an Optional"""
+
+    argument_signatures = [
+        Sig('-b', action='append_const', const=Exception, default=['X']),
+        Sig('-c', action='append', dest='b'),
+    ]
+    failures = ['a', '-c', 'a -c', '-bx', '-b x']
+    successes = [
+        ('', NS(b=['X'])),
+        ('-b', NS(b=['X', Exception])),
+        ('-b -cx -b -cyz', NS(b=['X', Exception, 'x', Exception, 'yz'])),
     ]
 
 
