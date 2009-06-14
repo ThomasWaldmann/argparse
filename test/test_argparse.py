@@ -3500,11 +3500,35 @@ class TestEncoding(TestCase):
 # ===================
 
 class TestArgumentError(TestCase):
-    
+
     def test_argument_error(self):
         msg = "my error here"
         error = argparse.ArgumentError(None, msg)
         self.failUnlessEqual(str(error), msg)
+
+# ======================
+# parse_known_args tests
+# ======================
+
+class TestParseKnownArgs(TestCase):
+
+    def test_optionals(self):
+        parser = argparse.ArgumentParser()
+        parser.add_argument('--foo')
+        args, extras = parser.parse_known_args('--foo F --bar --baz'.split())
+        self.failUnlessEqual(NS(foo='F'), args)
+        self.failUnlessEqual(['--bar', '--baz'], extras)
+
+    def test_mixed(self):
+        parser = argparse.ArgumentParser()
+        parser.add_argument('-v', nargs='?', const=1, type=int)
+        parser.add_argument('--spam', action='store_false')
+        parser.add_argument('badger')
+
+        argv = ["B", "C", "--foo", "-v", "3", "4"]
+        args, extras = parser.parse_known_args(argv)
+        self.failUnlessEqual(NS(v=3, spam=True, badger="B"), args)
+        self.failUnlessEqual(["C", "--foo", "4"], extras)
 
 if __name__ == '__main__':
     unittest.main()

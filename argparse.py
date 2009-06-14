@@ -1513,6 +1513,13 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
     # Command line argument parsing methods
     # =====================================
     def parse_args(self, args=None, namespace=None):
+        args, argv = self.parse_known_args(args, namespace)
+        if argv:
+            msg = _('unrecognized arguments: %s')
+            self.error(msg % ' '.join(argv))
+        return args
+
+    def parse_known_args(self, args=None, namespace=None):
         # args default to the system args
         if args is None:
             args = _sys.argv[1:]
@@ -1538,12 +1545,12 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
 
         # parse the arguments and exit if there are any errors
         try:
-            return self._parse_args(args, namespace)
+            return self._parse_known_args(args, namespace)
         except ArgumentError:
             err = _sys.exc_info()[1]
             self.error(str(err))
 
-    def _parse_args(self, arg_strings, namespace):
+    def _parse_known_args(self, arg_strings, namespace):
         # map all mutually exclusive arguments to the other arguments
         # they can't occur with
         action_conflicts = {}
@@ -1619,9 +1626,10 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
             action_tuples = []
             while True:
 
-                # if we found no optional action, raise an error
+                # if we found no optional action, skip it
                 if action is None:
-                    self.error(_('no such option: %s') % option_string)
+                    extras.append(arg_strings[start_index])
+                    return start_index + 1
 
                 # if there is an explicit argument, try to match the
                 # optional's string arguments to only this
@@ -1703,6 +1711,7 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
 
         # consume Positionals and Optionals alternately, until we have
         # passed the last option string
+        extras = []
         start_index = 0
         if option_string_indices:
             max_option_string_index = max(option_string_indices)
@@ -1727,12 +1736,11 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
                     start_index = positionals_end_index
 
             # if we consumed all the positionals we could and we're not
-            # at the index of an option string, there were unparseable
-            # arguments
+            # at the index of an option string, there were extra arguments
             if start_index not in option_string_indices:
-                msg = _('extra arguments found: %s')
-                extras = arg_strings[start_index:next_option_string_index]
-                self.error(msg % ' '.join(extras))
+                strings = arg_strings[start_index:next_option_string_index]
+                extras.extend(strings)
+                start_index = next_option_string_index
 
             # consume the next optional and any arguments for it
             start_index = consume_optional(start_index)
@@ -1740,11 +1748,8 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
         # consume any positionals following the last Optional
         stop_index = consume_positionals(start_index)
 
-        # if we didn't consume all the argument strings, there were too
-        # many supplied
-        if stop_index != len(arg_strings):
-            extras = arg_strings[stop_index:]
-            self.error(_('extra arguments found: %s') % ' '.join(extras))
+        # if we didn't consume all the argument strings, there were extras
+        extras.extend(arg_strings[stop_index:])
 
         # if we didn't use all the Positional objects, there were too few
         # arg strings supplied.
@@ -1773,8 +1778,8 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
                     msg = _('one of the arguments %s is required')
                     self.error(msg % ' '.join(names))
 
-        # return the updated namespace
-        return namespace
+        # return the updated namespace and the extra arguments
+        return namespace, extras
 
     def _match_argument(self, action, arg_strings_pattern):
         # match the pattern for this action to the arg strings
