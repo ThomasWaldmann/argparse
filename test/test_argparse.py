@@ -3495,5 +3495,16 @@ class TestEncoding(TestCase):
     def test_test_argparse_module_encoding(self):
         text = codecs.open(__file__, 'r', 'utf8').read()
 
+# ===================
+# ArgumentError tests
+# ===================
+
+class TestArgumentError(TestCase):
+    
+    def test_argument_error(self):
+        msg = "my error here"
+        error = argparse.ArgumentError(None, msg)
+        self.failUnlessEqual(str(error), msg)
+
 if __name__ == '__main__':
     unittest.main()

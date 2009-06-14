@@ -589,7 +589,9 @@ class RawTextHelpFormatter(RawDescriptionHelpFormatter):
 # =====================
 
 def _get_action_name(argument):
-    if argument.option_strings:
+    if argument is None:
+        return None
+    elif argument.option_strings:
         return  '/'.join(argument.option_strings)
     elif argument.metavar not in (None, SUPPRESS):
         return argument.metavar
