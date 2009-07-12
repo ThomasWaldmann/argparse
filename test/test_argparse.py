@@ -56,6 +56,20 @@ class TestCase(unittest.TestCase):
         super(TestCase, self).assertEqual(obj1, obj2)
 
 
+class TempDirMixin(object):
+
+    def setUp(self):
+        self.temp_dir = tempfile.mkdtemp()
+        self.old_dir = os.getcwd()
+        os.chdir(self.temp_dir)
+
+    def tearDown(self):
+        os.chdir(self.old_dir)
+        for filename in os.listdir(self.temp_dir):
+            os.remove(os.path.join(self.temp_dir, filename))
+        os.rmdir(self.temp_dir)
+
+
 class Sig(object):
 
     def __init__(self, *args, **kwargs):
@@ -1212,23 +1226,44 @@ class TestParserDefault42(ParserTestCase):
         ('--baz a b', NS(foo='a', bar=['b'], baz=True)),
     ]
 
+
+class TestArgumentsFromFile(ParserTestCase, TempDirMixin):
+    """Test reading arguments from a file"""
+
+    def setUp(self):
+        super(TestArgumentsFromFile, self).setUp()
+        file_texts = [
+            ('hello', 'hello world!\n'),
+            ('recursive', '-a\n'
+                          'A\n'
+                          '@hello'),
+            ('invalid', '@no-such-path\n'),
+        ]
+        for path, text in file_texts:
+            file = open(path, 'w')
+            file.write(text)
+            file.close()
+
+    parser_signature = Sig(fromfile_prefix_chars='@')
+    argument_signatures = [
+        Sig('-a'),
+        Sig('x'),
+        Sig('y', nargs='+'),
+    ]
+    failures = ['', '-b', 'X', '@invalid', '@missing']
+    successes = [
+        ('X Y', NS(a=None, x='X', y=['Y'])),
+        ('X -a A Y Z', NS(a='A', x='X', y=['Y', 'Z'])),
+        ('@hello X', NS(a=None, x='hello world!', y=['X'])),
+        ('X @hello', NS(a=None, x='X', y=['hello world!'])),
+        ('-a B @recursive Y Z', NS(a='A', x='hello world!', y=['Y', 'Z'])),
+        ('X @recursive Z -a B', NS(a='B', x='X', y=['hello world!', 'Z'])),
+    ]
+
+
 # =====================
 # Type conversion tests
 # =====================
-
-class TempDirMixin(object):
-
-    def setUp(self):
-        self.temp_dir = tempfile.mkdtemp()
-        self.old_dir = os.getcwd()
-        os.chdir(self.temp_dir)
-
-    def tearDown(self):
-        os.chdir(self.old_dir)
-        for filename in os.listdir(self.temp_dir):
-            os.remove(os.path.join(self.temp_dir, filename))
-        os.rmdir(self.temp_dir)
-
 
 class TestFileTypeRepr(TestCase):
 

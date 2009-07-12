@@ -11,7 +11,8 @@ ArgumentParser objects
    * add_help_ - Add a -h/--help option to the parser. (default: True)
    * argument_default_ - Set the global default value for arguments. (default: None)
    * parents_ - A list of :class:ArgumentParser objects whose arguments should also be included.
-   * prefix_chars_ - The set of characters that indicate optional arguments. (default: '-')
+   * prefix_chars_ - The set of characters that prefix optional arguments. (default: '-')
+   * fromfile_prefix_chars_ - The set of characters that prefix files from which additional arguments should be read. (default: None)
    * formatter_class_ - A class for customizing the help output.
    * conflict_handler_ - Usually unnecessary, defines strategy for resolving conflicting optionals.
    * prog_ - Usually unnecessary, the name of the program (default: ``sys.argv[0]``)
@@ -119,6 +120,24 @@ Most command-line options will use ``'-'`` as the prefix, e.g. ``-f/--foo``. Par
 
 The ``prefix_chars=`` argument defaults to ``'-'``. Supplying a set of characters that does not include ``'-'`` will cause ``-f/--foo`` options to be disallowed.
 Note that most parent parsers will specify :meth:`add_help` ``=False``. Otherwise, the ArgumentParser will see two ``-h/--help`` options (one in the parent and one in the child) and raise an error.
+
+
+fromfile_prefix_chars
+---------------------
+
+Sometimes, e.g. for particularly long argument lists, it may make sense to keep the list of arguments in a file rather than typing it out at the command line.
+If the ``fromfile_prefix_chars=`` argument is given to the ArgumentParser constructor, then arguments that start with any of the specified characters will be treated as files, and will be replaced by the arguments they contain. For example::
+
+  >>> open('args.txt', 'w').write('-f\nbar')
+  >>> parser = argparse.ArgumentParser(fromfile_prefix_chars='@')
+  >>> parser.add_argument('-f')
+  >>> parser.parse_args(['-f', 'foo', '@args.txt'])
+  Namespace(f='bar')
+
+Arguments read from a file must be one per line (with each whole line being considered a single argument) and are treated as if they were in the same place as the original file referencing argument on the command line.
+So in the example above, the expression ``['-f', 'foo', '@args.txt']`` is considered equivalent to the expression ``['-f', 'foo', '-f', 'bar']``.
+
+The ``fromfile_prefix_chars=`` argument defaults to ``None``, meaning that arguments will never be treated as file references.
 
 
 argument_default

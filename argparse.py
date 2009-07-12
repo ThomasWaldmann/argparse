@@ -1396,6 +1396,7 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
                  parents=[],
                  formatter_class=HelpFormatter,
                  prefix_chars='-',
+                 fromfile_prefix_chars=None,
                  argument_default=None,
                  conflict_handler='error',
                  add_help=True):
@@ -1415,6 +1416,7 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
         self.epilog = epilog
         self.version = version
         self.formatter_class = formatter_class
+        self.fromfile_prefix_chars = fromfile_prefix_chars
         self.add_help = add_help
 
         self._has_subparsers = False
@@ -1551,6 +1553,10 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
             self.error(str(err))
 
     def _parse_known_args(self, arg_strings, namespace):
+        # replace arg strings that are file references
+        if self.fromfile_prefix_chars is not None:
+            arg_strings = self._read_args_from_files(arg_strings)
+
         # map all mutually exclusive arguments to the other arguments
         # they can't occur with
         action_conflicts = {}
@@ -1780,6 +1786,30 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
 
         # return the updated namespace and the extra arguments
         return namespace, extras
+
+    def _read_args_from_files(self, arg_strings):
+        # expand arguments referencing files
+        new_arg_strings = []
+        for arg_string in arg_strings:
+
+            # for regular arguments, just add them back into the list
+            if arg_string[0] not in self.fromfile_prefix_chars:
+                new_arg_strings.append(arg_string)
+
+            # replace arguments referencing files with the file content
+            else:
+                try:
+                    args_file = open(arg_string[1:])
+                    arg_strings = args_file.read().splitlines()
+                    arg_strings = self._read_args_from_files(arg_strings)
+                    new_arg_strings.extend(arg_strings)
+                    args_file.close()
+                except IOError:
+                    err = _sys.exc_info()[1]
+                    self.error(str(err))
+
+        # return the modified argument list
+        return new_arg_strings
 
     def _match_argument(self, action, arg_strings_pattern):
         # match the pattern for this action to the arg strings
