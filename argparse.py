@@ -1800,10 +1800,12 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
             else:
                 try:
                     args_file = open(arg_string[1:])
-                    arg_strings = args_file.read().splitlines()
-                    arg_strings = self._read_args_from_files(arg_strings)
-                    new_arg_strings.extend(arg_strings)
-                    args_file.close()
+                    try:
+                        arg_strings = args_file.read().splitlines()
+                        arg_strings = self._read_args_from_files(arg_strings)
+                        new_arg_strings.extend(arg_strings)
+                    finally:
+                        args_file.close()
                 except IOError:
                     err = _sys.exc_info()[1]
                     self.error(str(err))

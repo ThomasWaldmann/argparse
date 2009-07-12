@@ -16,6 +16,7 @@
 
 import codecs
 import os
+import shutil
 import sys
 import textwrap
 import tempfile
@@ -65,9 +66,13 @@ class TempDirMixin(object):
 
     def tearDown(self):
         os.chdir(self.old_dir)
-        for filename in os.listdir(self.temp_dir):
-            os.remove(os.path.join(self.temp_dir, filename))
-        os.rmdir(self.temp_dir)
+        while True:
+            try:
+                shutil.rmtree(self.temp_dir)
+            except WindowsError:
+                continue
+            else:
+                break
 
 
 class Sig(object):
@@ -1227,7 +1232,7 @@ class TestParserDefault42(ParserTestCase):
     ]
 
 
-class TestArgumentsFromFile(ParserTestCase, TempDirMixin):
+class TestArgumentsFromFile(TempDirMixin, ParserTestCase):
     """Test reading arguments from a file"""
 
     def setUp(self):
