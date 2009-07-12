@@ -64,7 +64,7 @@ version
 
 Programs which want to display the program version at the command line can supply a version message as the ``version=`` argument to ArgumentParser. This will add a ``-v/--version`` option to the ArgumentParser that can be invoked to print the version string::
 
-  >>> parser = argparse.ArgumentParser(prog='PROG', version='%(prog)s 1.2.1')
+  >>> parser = argparse.ArgumentParser(prog='PROG', version='%(prog)s 3.5')
   >>> parser.print_help()
   usage: PROG [-h] [-v]
   
@@ -72,7 +72,7 @@ Programs which want to display the program version at the command line can suppl
     -h, --help     show this help message and exit
     -v, --version  show program's version number and exit
   >>> parser.parse_args(['-v'])
-  PROG 1.2.1
+  PROG 3.5
 
 Note you can use the ``%(prog)s`` format specifier to insert the program name into the version string.
 
