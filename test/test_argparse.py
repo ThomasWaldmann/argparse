@@ -3176,6 +3176,47 @@ class TestHelpRawDescription(HelpTestCase):
         '''
     version = ''
 
+
+class TestHelpArgumentDefaults(HelpTestCase):
+    """Test the ArgumentDefaultsHelpFormatter"""
+
+    parser_signature = Sig(
+        prog='PROG', formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        description='description')
+
+    argument_signatures = [
+        Sig('--foo', help='foo help - oh and by the way, %(default)s'),
+        Sig('--bar', action='store_true', help='bar help'),
+        Sig('spam', help='spam help'),
+        Sig('badger', nargs='?', default='wooden', help='badger help'),
+    ]
+    argument_group_signatures = [
+        (Sig('title', description='description'),
+         [Sig('--baz', type=int, default=42, help='baz help')]),
+    ]
+    usage = '''\
+        usage: PROG [-h] [--foo FOO] [--bar] [--baz BAZ] spam [badger]
+        '''
+    help = usage + '''\
+
+        description
+
+        positional arguments:
+          spam        spam help
+          badger      badger help (default: wooden)
+
+        optional arguments:
+          -h, --help  show this help message and exit
+          --foo FOO   foo help - oh and by the way, None
+          --bar       bar help (default: False)
+
+        title:
+          description
+
+          --baz BAZ   baz help (default: 42)
+        '''
+    version = ''
+
 # =====================================
 # Optional/Positional constructor tests
 # =====================================

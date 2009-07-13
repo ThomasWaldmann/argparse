@@ -549,7 +549,7 @@ class HelpFormatter(object):
         if params.get('choices') is not None:
             choices_str = ', '.join([str(c) for c in params['choices']])
             params['choices'] = choices_str
-        return action.help % params
+        return self._get_help_string(action) % params
 
     def _iter_indented_subactions(self, action):
         try:
@@ -571,6 +571,9 @@ class HelpFormatter(object):
         return _textwrap.fill(text, width, initial_indent=indent,
                                            subsequent_indent=indent)
 
+    def _get_help_string(self, action):
+        return action.help
+
 
 class RawDescriptionHelpFormatter(HelpFormatter):
 
@@ -582,6 +585,18 @@ class RawTextHelpFormatter(RawDescriptionHelpFormatter):
 
     def _split_lines(self, text, width):
         return text.splitlines()
+
+
+class ArgumentDefaultsHelpFormatter(HelpFormatter):
+
+    def _get_help_string(self, action):
+        help = action.help
+        if '%(default)' not in action.help:
+            if action.default is not SUPPRESS:
+                defaulting_nargs = [OPTIONAL, ZERO_OR_MORE]
+                if action.option_strings or action.nargs in defaulting_nargs:
+                    help += ' (default: %(default)s)'
+        return help
 
 
 # =====================

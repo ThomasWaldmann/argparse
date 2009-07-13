@@ -176,6 +176,10 @@ Sometimes, several parsers share a common set of arguments. Rather than repeatin
 formatter_class
 ---------------
 
+ArgumentParser objects allow the help formatting to be customized by specifying an alternate formatting class.
+Currently, there are three such classes: ``argparse.RawDescriptionHelpFormatter``, ``argparse.RawTextHelpFormatter`` and ``argparse.ArgumentDefaultsHelpFormatter``.
+The first two allow more control over how textual descriptions are displayed, while the last automatically adds information about argument default values.
+
 By default, ArgumentParser objects line-wrap the description_ and epilog_ texts in command-line help messages::
 
   >>> parser = argparse.ArgumentParser(
@@ -223,6 +227,23 @@ When you have description_ and epilog_ that is already correctly formatted and s
     -h, --help  show this help message and exit
 
 If you want to maintain whitespace for all sorts of help text (including argument descriptions), you can use ``argparse.RawTextHelpFormatter``.
+
+The other formatter class available, ``argparse.ArgumentDefaultsHelpFormatter``, will add information about the default value of each of the arguments::
+
+  >>> parser = argparse.ArgumentParser(
+  ...     prog='PROG',
+  ...     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+  >>> parser.add_argument('--foo', type=int, default=42, help='FOO!')
+  >>> parser.add_argument('bar', nargs='*', default=[1, 2, 3], help='BAR!')
+  >>> parser.print_help()
+  usage: PROG [-h] [--foo FOO] [bar [bar ...]]
+
+  positional arguments:
+    bar         BAR! (default: [1, 2, 3])
+
+  optional arguments:
+    -h, --help  show this help message and exit
+    --foo FOO   FOO! (default: 42)
 
 
 conflict_handler
