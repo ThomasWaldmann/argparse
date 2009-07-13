@@ -5,3 +5,4 @@ include doc/_static/*.css
 include doc/_static/*.js
 include doc/_static/*.png
 include doc/source/*.rst
+include doc/source/conf.py
