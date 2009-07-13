@@ -22,7 +22,7 @@ The add_argument() method
 name or flags
 -------------
 
-The :meth:`add_argument` method needs to know whether you're expecting an optional argument, e.g. ``-f`` or ``--foo`, or a positional argument, e.g. a list of filenames. The first arguments passed to :meth:`add_argument` must therefore be either a series of flags, or a simple argument name. For example, an optional argument could be created like::
+The :meth:`add_argument` method needs to know whether you're expecting an optional argument, e.g. ``-f`` or ``--foo``, or a positional argument, e.g. a list of filenames. The first arguments passed to :meth:`add_argument` must therefore be either a series of flags, or a simple argument name. For example, an optional argument could be created like::
 
   >>> parser.add_argument('-f', '--foo')
 

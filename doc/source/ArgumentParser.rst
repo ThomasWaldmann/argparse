@@ -143,7 +143,7 @@ The ``fromfile_prefix_chars=`` argument defaults to ``None``, meaning that argum
 argument_default
 ----------------
 
-Generally, argument defaults are specified either by passing a default_ to :meth:`add_argument` or by calling the :meth:`set_defaults` methods with a specific set of name-value pairs. Sometimes however, it may be useful to specify a single parser-wide default for arguments. This can be accomplished by passing the ``argument_default=`` keyword argument to ArgumentParser. For example, to globally suppress attribute creation on :meth:`parse_args` calls, we supply ``argument_default=SUPPRESS``::
+Generally, argument defaults are specified either by passing a default to :meth:`add_argument` or by calling the :meth:`set_defaults` methods with a specific set of name-value pairs. Sometimes however, it may be useful to specify a single parser-wide default for arguments. This can be accomplished by passing the ``argument_default=`` keyword argument to ArgumentParser. For example, to globally suppress attribute creation on :meth:`parse_args` calls, we supply ``argument_default=SUPPRESS``::
 
   >>> parser = argparse.ArgumentParser(argument_default=argparse.SUPPRESS)
   >>> parser.add_argument('--foo')
