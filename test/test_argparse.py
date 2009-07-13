@@ -3080,6 +3080,33 @@ class TestHelpNone(HelpTestCase):
     version = ''
 
 
+class TestHelpTupleMetavar(HelpTestCase):
+    """Test specifying metavar as a tuple"""
+
+    parser_signature = Sig(prog='PROG')
+    argument_signatures = [
+        Sig('-w', help='w', nargs='+', metavar=('W1', 'W2')),
+        Sig('-x', help='x', nargs='*', metavar=('X1', 'X2')),
+        Sig('-y', help='y', nargs=3, metavar=('Y1', 'Y2', 'Y3')),
+        Sig('-z', help='z', nargs='?', metavar=('Z1', )),
+    ]
+    argument_group_signatures = []
+    usage = '''\
+        usage: PROG [-h] [-w W1 [W2 ...]] [-x [X1 [X2 ...]]] [-y Y1 Y2 Y3] \
+[-z [Z1]]
+        '''
+    help = usage + '''\
+
+        optional arguments:
+          -h, --help        show this help message and exit
+          -w W1 [W2 ...]    w
+          -x [X1 [X2 ...]]  x
+          -y Y1 Y2 Y3       y
+          -z [Z1]           z
+        '''
+    version = ''
+
+
 class TestHelpRawText(HelpTestCase):
     """Test the RawTextHelpFormatter"""
 

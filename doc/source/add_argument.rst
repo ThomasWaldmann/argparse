@@ -378,6 +378,20 @@ If you would like to provide a different name for your argument in help messages
 
 Note that ``metavar`` only changes the *displayed* name - the name of the attribute on the :meth:`parse_args` object is still determined by the dest_ value.
 
+Different values of ``nargs`` may cause the metavar to be used multiple times.
+If you'd like to specify a different display name for each of the arguments, you can provide a tuple to ``metavar``::
+
+  >>> parser = argparse.ArgumentParser(prog='PROG')
+  >>> parser.add_argument('-x', nargs=2)
+  >>> parser.add_argument('--foo', nargs=2, metavar=('bar', 'baz'))
+  >>> parser.print_help()
+  usage: PROG [-h] [-x X X] [--foo bar baz]
+
+  optional arguments:
+    -h, --help     show this help message and exit
+    -x X X
+    --foo bar baz
+
 
 dest
 ----

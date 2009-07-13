@@ -495,7 +495,8 @@ class HelpFormatter(object):
 
     def _format_action_invocation(self, action):
         if not action.option_strings:
-            return self._format_metavar(action, action.dest)
+            metavar, = self._metavar_formatter(action, action.dest)(1)
+            return metavar
 
         else:
             parts = []
@@ -515,30 +516,36 @@ class HelpFormatter(object):
 
             return ', '.join(parts)
 
-    def _format_metavar(self, action, default_metavar):
+    def _metavar_formatter(self, action, default_metavar):
         if action.metavar is not None:
-            name = action.metavar
+            result = action.metavar
         elif action.choices is not None:
             choice_strs = [str(choice) for choice in action.choices]
-            name = '{%s}' % ','.join(choice_strs)
+            result = '{%s}' % ','.join(choice_strs)
         else:
-            name = default_metavar
-        return name
+            result = default_metavar
+        def format(tuple_size):
+            if isinstance(result, tuple):
+                return result
+            else:
+                return (result, ) * tuple_size
+        return format
 
     def _format_args(self, action, default_metavar):
-        name = self._format_metavar(action, default_metavar)
+        get_metavar = self._metavar_formatter(action, default_metavar)
         if action.nargs is None:
-            result = name
+            result = '%s' % get_metavar(1)
         elif action.nargs == OPTIONAL:
-            result = '[%s]' % name
+            result = '[%s]' % get_metavar(1)
         elif action.nargs == ZERO_OR_MORE:
-            result = '[%s [%s ...]]' % (name, name)
+            result = '[%s [%s ...]]' % get_metavar(2)
         elif action.nargs == ONE_OR_MORE:
-            result = '%s [%s ...]' % (name, name)
+            result = '%s [%s ...]' % get_metavar(2)
         elif action.nargs is PARSER:
-            result = '%s ...' % name
+            result = '%s ...' % get_metavar(1)
         else:
-            result = ' '.join([name] * action.nargs)
+            formats = ['%s' for _ in range(action.nargs)]
+            result = ' '.join(formats) % get_metavar(action.nargs)
         return result
 
     def _expand_help(self, action):
