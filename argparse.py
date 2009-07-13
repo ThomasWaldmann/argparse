@@ -18,12 +18,12 @@
 
 This module is an optparse-inspired command-line parsing library that:
 
-* handles both optional and positional arguments
-* produces highly informative usage messages
-* supports parsers that dispatch to sub-parsers
+    - handles both optional and positional arguments
+    - produces highly informative usage messages
+    - supports parsers that dispatch to sub-parsers
 
 The following is a simple usage example that sums integers from the
-command-line and writes the result to a file:
+command-line and writes the result to a file::
 
     parser = argparse.ArgumentParser(
         description='sum the integers at the command line')
@@ -39,32 +39,35 @@ command-line and writes the result to a file:
 
 The module contains the following public classes:
 
-    ArgumentParser -- The main entry point for command-line parsing. As the
+    - ArgumentParser -- The main entry point for command-line parsing. As the
         example above shows, the add_argument() method is used to populate
         the parser with actions for optional and positional arguments. Then
         the parse_args() method is invoked to convert the args at the
         command-line into an object with attributes.
 
-    ArgumentError -- The exception raised by ArgumentParser objects when
+    - ArgumentError -- The exception raised by ArgumentParser objects when
         there are errors with the parser's actions. Errors raised while
         parsing the command-line are caught by ArgumentParser and emitted
         as command-line messages.
 
-    FileType -- A factory for defining types of files to be created. As the
+    - FileType -- A factory for defining types of files to be created. As the
         example above shows, instances of FileType are typically passed as
         the type= argument of add_argument() calls.
 
-    Action -- The base class for parser actions. Typically actions are
+    - Action -- The base class for parser actions. Typically actions are
         selected by passing strings like 'store_true' or 'append_const' to
         the action= argument of add_argument(). However, for greater
         customization of ArgumentParser actions, subclasses of Action may
         be defined and passed as the action= argument.
 
-    HelpFormatter, RawDescriptionHelpFormatter -- Formatter classes which
+    - HelpFormatter, RawDescriptionHelpFormatter, RawTextHelpFormatter,
+        ArgumentDefaultsHelpFormatter -- Formatter classes which
         may be passed as the formatter_class= argument to the
-        ArgumentParser constructor. HelpFormatter is the default, while
-        RawDescriptionHelpFormatter tells the parser not to perform any
-        line-wrapping on description text.
+        ArgumentParser constructor. HelpFormatter is the default,
+        RawDescriptionHelpFormatter and RawTextHelpFormatter tell the parser
+        not to change the formatting for help text, and
+        ArgumentDefaultsHelpFormatter adds information about argument defaults
+        to the help.
 
 All other classes in this module are considered implementation details.
 (Also note that HelpFormatter and RawDescriptionHelpFormatter are only
@@ -73,6 +76,18 @@ still considered an implementation detail.)
 """
 
 __version__ = '0.9.2'
+__all__ = [
+    'ArgumentParser',
+    'ArgumentError',
+    'Namespace',
+    'Action',
+    'FileType',
+    'HelpFormatter',
+    'RawDescriptionHelpFormatter',
+    'RawTextHelpFormatter'
+    'ArgumentDefaultsHelpFormatter',
+]
+
 
 import copy as _copy
 import os as _os
@@ -83,20 +98,20 @@ import textwrap as _textwrap
 from gettext import gettext as _
 
 try:
-    set
+    _set = set
 except NameError:
-    from sets import Set as set
+    from sets import Set as _set
 
 try:
-    basestring
+    _basestring = basestring
 except NameError:
-    basestring = str
+    _basestring = str
 
 try:
-    sorted
+    _sorted = sorted
 except NameError:
 
-    def sorted(iterable, reverse=False):
+    def _sorted(iterable, reverse=False):
         result = list(iterable)
         result.sort()
         if reverse:
@@ -118,7 +133,7 @@ PARSER = '==PARSER=='
 class _AttributeHolder(object):
     """Abstract base class that provides __repr__.
 
-    The __repr__ method returns a string in the format:
+    The __repr__ method returns a string in the format::
         ClassName(attr=name, attr=name, ...)
     The attributes are determined either by a class-level attribute,
     '_kwarg_names', or by inspecting the instance __dict__.
@@ -134,7 +149,7 @@ class _AttributeHolder(object):
         return '%s(%s)' % (type_name, ', '.join(arg_strings))
 
     def _get_kwargs(self):
-        return sorted(self.__dict__.items())
+        return _sorted(self.__dict__.items())
 
     def _get_args(self):
         return []
@@ -151,6 +166,11 @@ def _ensure_value(namespace, name, value):
 # ===============
 
 class HelpFormatter(object):
+    """Formatter for generating usage messages and argument help strings.
+
+    Only the name of this class is considered a public API. All the methods
+    provided by the class are considered an implementation detail.
+    """
 
     def __init__(self,
                  prog,
@@ -353,7 +373,7 @@ class HelpFormatter(object):
 
     def _format_actions_usage(self, actions, groups):
         # find group indices and identify actions in groups
-        group_actions = set()
+        group_actions = _set()
         inserts = {}
         for group in groups:
             try:
@@ -423,7 +443,7 @@ class HelpFormatter(object):
                 parts.append(part)
 
         # insert things at the necessary indices
-        for i in sorted(inserts, reverse=True):
+        for i in _sorted(inserts, reverse=True):
             parts[i:i] = [inserts[i]]
 
         # join all the action items with spaces
@@ -524,6 +544,7 @@ class HelpFormatter(object):
             result = '{%s}' % ','.join(choice_strs)
         else:
             result = default_metavar
+
         def format(tuple_size):
             if isinstance(result, tuple):
                 return result
@@ -583,18 +604,33 @@ class HelpFormatter(object):
 
 
 class RawDescriptionHelpFormatter(HelpFormatter):
+    """Help message formatter which retains any formatting in descriptions.
+
+    Only the name of this class is considered a public API. All the methods
+    provided by the class are considered an implementation detail.
+    """
 
     def _fill_text(self, text, width, indent):
         return ''.join([indent + line for line in text.splitlines(True)])
 
 
 class RawTextHelpFormatter(RawDescriptionHelpFormatter):
+    """Help message formatter which retains formatting of all help text.
+
+    Only the name of this class is considered a public API. All the methods
+    provided by the class are considered an implementation detail.
+    """
 
     def _split_lines(self, text, width):
         return text.splitlines()
 
 
 class ArgumentDefaultsHelpFormatter(HelpFormatter):
+    """Help message formatter which adds default values to argument help.
+
+    Only the name of this class is considered a public API. All the methods
+    provided by the class are considered an implementation detail.
+    """
 
     def _get_help_string(self, action):
         help = action.help
@@ -624,10 +660,7 @@ def _get_action_name(argument):
 
 
 class ArgumentError(Exception):
-    """ArgumentError(message, argument)
-
-    Raised whenever there was an error creating or using an argument
-    (optional or positional).
+    """An error from creating or using an argument (optional or positional).
 
     The string value of this exception is the message, augmented with
     information about the argument that caused it.
@@ -650,52 +683,54 @@ class ArgumentError(Exception):
 # ==============
 
 class Action(_AttributeHolder):
-    """Action(*strings, **options)
+    """Information about how to convert command line strings to Python objects.
 
-    Action objects hold the information necessary to convert a
-    set of command-line arguments (possibly including an initial option
-    string) into the desired Python object(s).
+    Action objects are used by an ArgumentParser to represent the information
+    needed to parse a single argument from one or more strings from the
+    command line. The keyword arguments to the Action constructor are also
+    all attributes of Action instances.
 
     Keyword Arguments:
 
-    option_strings -- A list of command-line option strings which
-        should be associated with this action.
+        - option_strings -- A list of command-line option strings which
+            should be associated with this action.
 
-    dest -- The name of the attribute to hold the created object(s)
+        - dest -- The name of the attribute to hold the created object(s)
 
-    nargs -- The number of command-line arguments that should be consumed.
-        By default, one argument will be consumed and a single value will
-        be produced.  Other values include:
-            * N (an integer) consumes N arguments (and produces a list)
-            * '?' consumes zero or one arguments
-            * '*' consumes zero or more arguments (and produces a list)
-            * '+' consumes one or more arguments (and produces a list)
-        Note that the difference between the default and nargs=1 is that
-        with the default, a single value will be produced, while with
-        nargs=1, a list containing a single value will be produced.
+        - nargs -- The number of command-line arguments that should be
+            consumed. By default, one argument will be consumed and a single
+            value will be produced.  Other values include:
+                - N (an integer) consumes N arguments (and produces a list)
+                - '?' consumes zero or one arguments
+                - '*' consumes zero or more arguments (and produces a list)
+                - '+' consumes one or more arguments (and produces a list)
+            Note that the difference between the default and nargs=1 is that
+            with the default, a single value will be produced, while with
+            nargs=1, a list containing a single value will be produced.
 
-    const -- The value to be produced if the option is specified and the
-        option uses an action that takes no values.
+        - const -- The value to be produced if the option is specified and the
+            option uses an action that takes no values.
 
-    default -- The value to be produced if the option is not specified.
+        - default -- The value to be produced if the option is not specified.
 
-    type -- The type which the command-line arguments should be converted
-        to, should be one of 'string', 'int', 'float', 'complex' or a
-        callable object that accepts a single string argument. If None,
-        'string' is assumed.
+        - type -- The type which the command-line arguments should be converted
+            to, should be one of 'string', 'int', 'float', 'complex' or a
+            callable object that accepts a single string argument. If None,
+            'string' is assumed.
 
-    choices -- A container of values that should be allowed. If not None,
-        after a command-line argument has been converted to the appropriate
-        type, an exception will be raised if it is not a member of this
-        collection.
+        - choices -- A container of values that should be allowed. If not None,
+            after a command-line argument has been converted to the appropriate
+            type, an exception will be raised if it is not a member of this
+            collection.
 
-    required -- True if the action must always be specified at the command
-        line. This is only meaningful for optional command-line arguments.
+        - required -- True if the action must always be specified at the
+            command line. This is only meaningful for optional command-line
+            arguments.
 
-    help -- The help string describing the argument.
+        - help -- The help string describing the argument.
 
-    metavar -- The name to be used for the option's argument with the help
-        string. If None, the 'dest' value will be used as the name.
+        - metavar -- The name to be used for the option's argument with the
+            help string. If None, the 'dest' value will be used as the name.
     """
 
     def __init__(self,
@@ -1027,10 +1062,10 @@ class FileType(object):
     ArgumentParser add_argument() method.
 
     Keyword Arguments:
-    mode -- A string indicating how the file is to be opened. Accepts the
-        same values as the builtin open() function.
-    bufsize -- The file's desired buffer size. Accepts the same values as
-        the builtin open() function.
+        - mode -- A string indicating how the file is to be opened. Accepts the
+            same values as the builtin open() function.
+        - bufsize -- The file's desired buffer size. Accepts the same values as
+            the builtin open() function.
     """
 
     def __init__(self, mode='r', bufsize=None):
@@ -1064,6 +1099,11 @@ class FileType(object):
 # ===========================
 
 class Namespace(_AttributeHolder):
+    """Simple object for storing attributes.
+
+    Implements equality by attribute names and values, and provides a simple
+    string representation.
+    """
 
     def __init__(self, **kwargs):
         for name in kwargs:
@@ -1280,7 +1320,7 @@ class _ActionsContainer(object):
                 raise ValueError(msg % tup)
 
             # error on strings that are all prefix characters
-            if not (set(option_string) - set(self.prefix_chars)):
+            if not (_set(option_string) - _set(self.prefix_chars)):
                 msg = _('invalid option string %r: '
                         'must contain characters other than %r')
                 tup = option_string, self.prefix_chars
@@ -1408,6 +1448,23 @@ class _MutuallyExclusiveGroup(_ArgumentGroup):
 
 
 class ArgumentParser(_AttributeHolder, _ActionsContainer):
+    """Object for parsing command line strings into Python objects.
+
+    Keyword Arguments:
+        - prog -- The name of the program (default: sys.argv[0])
+        - usage -- A usage message (default: auto-generated from arguments)
+        - description -- A description of what the program does
+        - epilog -- Text following the argument descriptions
+        - version -- Add a -v/--version option with the given version string
+        - parents -- Parsers whose arguments should be copied into this one
+        - formatter_class -- HelpFormatter class for printing help messages
+        - prefix_chars -- Characters that prefix optional arguments
+        - fromfile_prefix_chars -- Characters that prefix files containing
+            additional arguments
+        - argument_default -- The default value for all arguments
+        - conflict_handler -- String indicating how to handle conflicts
+        - add_help -- Add a -h/-help option
+    """
 
     def __init__(self,
                  prog=None,
@@ -1558,7 +1615,7 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
                 if not hasattr(namespace, action.dest):
                     if action.default is not SUPPRESS:
                         default = action.default
-                        if isinstance(action.default, basestring):
+                        if isinstance(action.default, _basestring):
                             default = self._get_value(action, default)
                         setattr(namespace, action.dest, default)
 
@@ -1618,8 +1675,8 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
         arg_strings_pattern = ''.join(arg_string_pattern_parts)
 
         # converts arg strings to the appropriate and then takes the action
-        seen_actions = set()
-        seen_non_default_actions = set()
+        seen_actions = _set()
+        seen_non_default_actions = _set()
 
         def take_action(action, argument_strings, option_string=None):
             seen_actions.add(action)
@@ -2015,7 +2072,7 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
                 value = action.const
             else:
                 value = action.default
-            if isinstance(value, basestring):
+            if isinstance(value, _basestring):
                 value = self._get_value(action, value)
                 self._check_value(action, value)
 
