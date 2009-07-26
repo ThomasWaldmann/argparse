@@ -1117,7 +1117,7 @@ class TestEmptyAndSpaceContainingArguments(ParserTestCase):
 
     argument_signatures = [
         Sig('x', nargs='?'),
-        Sig('-y'),
+        Sig('-y', '--yyy', dest='y'),
     ]
     failures = ['-y']
     successes = [
@@ -1127,6 +1127,8 @@ class TestEmptyAndSpaceContainingArguments(ParserTestCase):
         (['-y', ''], NS(x=None, y='')),
         (['-y', 'a badger'], NS(x=None, y='a badger')),
         (['-y', '-a badger'], NS(x=None, y='-a badger')),
+        (['--yyy=a badger'], NS(x=None, y='a badger')),
+        (['--yyy=-a badger'], NS(x=None, y='-a badger')),
     ]
 
 
