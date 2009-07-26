@@ -129,7 +129,27 @@ Sub-commands
      optional arguments:
        -h, --help     show this help message and exit
        --baz {X,Y,Z}  baz help
+
+   The :meth:`add_subparsers` method also supports ``title`` and ``description`` keyword arguments.  When either is present, the subparser's commands will appear in their own group in the help output.  For example::
    
+     >>> parser = argparse.ArgumentParser()
+     >>> subparsers = parser.add_subparsers(title='subcommands',
+     ...                                    description='valid subcommands',
+     ...                                    help='additional help')
+     >>> subparsers.add_parser('foo')
+     >>> subparsers.add_parser('bar')
+     >>> parser.parse_args(['-h'])
+     usage:  [-h] {foo,bar} ...
+     
+     optional arguments:
+       -h, --help  show this help message and exit
+     
+     subcommands:
+       valid subcommands
+     
+       {foo,bar}   additional help
+     
+
    One particularly effective way of handling sub-commands is to combine the use of the :meth:`add_subparsers` method with calls to :meth:`set_defaults` so that each subparser knows which Python function it should execute.  For example::
    
      >>> # sub-command functions

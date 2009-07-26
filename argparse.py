@@ -1498,11 +1498,10 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
         self.fromfile_prefix_chars = fromfile_prefix_chars
         self.add_help = add_help
 
-        self._has_subparsers = False
-
         add_group = self.add_argument_group
         self._positionals = add_group(_('positional arguments'))
         self._optionals = add_group(_('optional arguments'))
+        self._subparsers = None
 
         # register types
         def identity(string):
@@ -1549,11 +1548,18 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
     # Optional/Positional adding methods
     # ==================================
     def add_subparsers(self, **kwargs):
-        if self._has_subparsers:
+        if self._subparsers is not None:
             self.error(_('cannot have multiple subparser arguments'))
 
         # add the parser class to the arguments if it's not present
         kwargs.setdefault('parser_class', type(self))
+
+        if 'title' in kwargs or 'description' in kwargs:
+            title = _(kwargs.pop('title', 'subcommands'))
+            description = _(kwargs.pop('description', None))
+            self._subparsers = self.add_argument_group(title, description)
+        else:
+            self._subparsers = self._positionals
 
         # prog defaults to the usage message of this parser, skipping
         # optional arguments and with no "usage:" prefix
@@ -1567,8 +1573,7 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
         # create the parsers action and add it to the positionals list
         parsers_class = self._pop_action_class(kwargs, 'parsers')
         action = parsers_class(option_strings=[], **kwargs)
-        self._positionals._add_action(action)
-        self._has_subparsers = True
+        self._subparsers._add_action(action)
 
         # return the created parsers action
         return action

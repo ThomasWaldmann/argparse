@@ -1654,6 +1654,36 @@ class TestAddSubparsers(TestCase):
               --foo       foo help
             '''))
 
+    def test_subparser_title_help(self):
+        parser = ErrorRaisingArgumentParser(prog='PROG',
+                                            description='main description')
+        parser.add_argument('--foo', action='store_true', help='foo help')
+        parser.add_argument('bar', help='bar help')
+        subparsers = parser.add_subparsers(title='subcommands',
+                                           description='command help',
+                                           help='additional text')
+        parser1 = subparsers.add_parser('1')
+        parser2 = subparsers.add_parser('2')
+        self.assertEqual(parser.format_usage(),
+                         'usage: PROG [-h] [--foo] bar {1,2} ...\n')
+        self.assertEqual(parser.format_help(), textwrap.dedent('''\
+            usage: PROG [-h] [--foo] bar {1,2} ...
+
+            main description
+
+            positional arguments:
+              bar         bar help
+
+            optional arguments:
+              -h, --help  show this help message and exit
+              --foo       foo help
+
+            subcommands:
+              command help
+
+              {1,2}       additional text
+            '''))
+
     def _test_subparser_help(self, args_str, expected_help):
         try:
             self.parser.parse_args(args_str.split())
