@@ -5,13 +5,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>The add_argument() method &mdash; argparse v0.9.1 documentation</title>
+    <title>The add_argument() method &mdash; argparse v1.0 documentation</title>
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.9.1',
+        VERSION:     '1.0',
         COLLAPSE_MODINDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -19,7 +19,7 @@
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="argparse v0.9.1 documentation" href="index.html" />
+    <link rel="top" title="argparse v1.0 documentation" href="index.html" />
     <link rel="up" title="API documentation" href="api-docs.html" />
     <link rel="next" title="The parse_args() method" href="parse_args.html" />
     <link rel="prev" title="ArgumentParser objects" href="ArgumentParser.html" /> 
@@ -37,7 +37,7 @@
         <li class="right" >
           <a href="ArgumentParser.html" title="ArgumentParser objects"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">argparse v0.9.1 documentation</a> &raquo;</li>
+        <li><a href="index.html">argparse v1.0 documentation</a> &raquo;</li>
           <li><a href="api-docs.html" accesskey="U">API documentation</a> &raquo;</li> 
       </ul>
     </div>  
@@ -71,7 +71,7 @@
 
 <div class="section" id="name-or-flags">
 <h2>name or flags<a class="headerlink" href="#name-or-flags" title="Permalink to this headline">¶</a></h2>
-<p>The <a title="add_argument" class="reference internal" href="#add_argument"><tt class="xref docutils literal"><span class="pre">add_argument()</span></tt></a> method needs to know whether you&#8217;re expecting an optional argument, e.g. <tt class="docutils literal"><span class="pre">-f</span></tt> or <a href="#id1"><span class="problematic" id="id2">``</span></a>&#8211;foo`, or a positional argument, e.g. a list of filenames. The first arguments passed to <a title="add_argument" class="reference internal" href="#add_argument"><tt class="xref docutils literal"><span class="pre">add_argument()</span></tt></a> must therefore be either a series of flags, or a simple argument name. For example, an optional argument could be created like:</p>
+<p>The <a title="add_argument" class="reference internal" href="#add_argument"><tt class="xref docutils literal"><span class="pre">add_argument()</span></tt></a> method needs to know whether you&#8217;re expecting an optional argument, e.g. <tt class="docutils literal"><span class="pre">-f</span></tt> or <tt class="docutils literal"><span class="pre">--foo</span></tt>, or a positional argument, e.g. a list of filenames. The first arguments passed to <a title="add_argument" class="reference internal" href="#add_argument"><tt class="xref docutils literal"><span class="pre">add_argument()</span></tt></a> must therefore be either a series of flags, or a simple argument name. For example, an optional argument could be created like:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-f&#39;</span><span class="p">,</span> <span class="s">&#39;--foo&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -420,6 +420,20 @@
 </pre></div>
 </div>
 <p>Note that <tt class="docutils literal"><span class="pre">metavar</span></tt> only changes the <em>displayed</em> name - the name of the attribute on the <a title="parse_args" class="reference external" href="parse_args.html#parse_args"><tt class="xref docutils literal"><span class="pre">parse_args()</span></tt></a> object is still determined by the <a class="reference internal" href="#dest">dest</a> value.</p>
+<p>Different values of <tt class="docutils literal"><span class="pre">nargs</span></tt> may cause the metavar to be used multiple times.
+If you&#8217;d like to specify a different display name for each of the arguments, you can provide a tuple to <tt class="docutils literal"><span class="pre">metavar</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">prog</span><span class="o">=</span><span class="s">&#39;PROG&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-x&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="mf">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--foo&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="mf">2</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;bar&#39;</span><span class="p">,</span> <span class="s">&#39;baz&#39;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">print_help</span><span class="p">()</span>
+<span class="go">usage: PROG [-h] [-x X X] [--foo bar baz]</span>
+
+<span class="go">optional arguments:</span>
+<span class="go">  -h, --help     show this help message and exit</span>
+<span class="go">  -x X X</span>
+<span class="go">  --foo bar baz</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="dest">
 <h2>dest<a class="headerlink" href="#dest" title="Permalink to this headline">¶</a></h2>
@@ -514,7 +528,7 @@
         <li class="right" >
           <a href="ArgumentParser.html" title="ArgumentParser objects"
              >previous</a> |</li>
-        <li><a href="index.html">argparse v0.9.1 documentation</a> &raquo;</li>
+        <li><a href="index.html">argparse v1.0 documentation</a> &raquo;</li>
           <li><a href="api-docs.html" >API documentation</a> &raquo;</li> 
       </ul>
     </div>

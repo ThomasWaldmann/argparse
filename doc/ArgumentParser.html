@@ -5,13 +5,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>ArgumentParser objects &mdash; argparse v0.9.1 documentation</title>
+    <title>ArgumentParser objects &mdash; argparse v1.0 documentation</title>
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.9.1',
+        VERSION:     '1.0',
         COLLAPSE_MODINDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -19,7 +19,7 @@
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="argparse v0.9.1 documentation" href="index.html" />
+    <link rel="top" title="argparse v1.0 documentation" href="index.html" />
     <link rel="up" title="API documentation" href="api-docs.html" />
     <link rel="next" title="The add_argument() method" href="add_argument.html" />
     <link rel="prev" title="API documentation" href="api-docs.html" /> 
@@ -37,7 +37,7 @@
         <li class="right" >
           <a href="api-docs.html" title="API documentation"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">argparse v0.9.1 documentation</a> &raquo;</li>
+        <li><a href="index.html">argparse v1.0 documentation</a> &raquo;</li>
           <li><a href="api-docs.html" accesskey="U">API documentation</a> &raquo;</li> 
       </ul>
     </div>  
@@ -61,7 +61,8 @@ class </em><tt class="descname">ArgumentParser</tt><big>(</big><span class="opti
 <li><a class="reference internal" href="#add-help">add_help</a> - Add a -h/&#8211;help option to the parser. (default: True)</li>
 <li><a class="reference internal" href="#argument-default">argument_default</a> - Set the global default value for arguments. (default: None)</li>
 <li><a class="reference internal" href="#parents">parents</a> - A list of :class:ArgumentParser objects whose arguments should also be included.</li>
-<li><a class="reference internal" href="#prefix-chars">prefix_chars</a> - The set of characters that indicate optional arguments. (default: &#8216;-&#8216;)</li>
+<li><a class="reference internal" href="#prefix-chars">prefix_chars</a> - The set of characters that prefix optional arguments. (default: &#8216;-&#8216;)</li>
+<li><a class="reference internal" href="#fromfile-prefix-chars">fromfile_prefix_chars</a> - The set of characters that prefix files from which additional arguments should be read. (default: None)</li>
 <li><a class="reference internal" href="#formatter-class">formatter_class</a> - A class for customizing the help output.</li>
 <li><a class="reference internal" href="#conflict-handler">conflict_handler</a> - Usually unnecessary, defines strategy for resolving conflicting optionals.</li>
 <li><a class="reference internal" href="#prog">prog</a> - Usually unnecessary, the name of the program (default: <tt class="docutils literal"><span class="pre">sys.argv[0]</span></tt>)</li>
@@ -107,7 +108,7 @@ class </em><tt class="descname">ArgumentParser</tt><big>(</big><span class="opti
 <div class="section" id="version">
 <h2>version<a class="headerlink" href="#version" title="Permalink to this headline">¶</a></h2>
 <p>Programs which want to display the program version at the command line can supply a version message as the <tt class="docutils literal"><span class="pre">version=</span></tt> argument to ArgumentParser. This will add a <tt class="docutils literal"><span class="pre">-v/--version</span></tt> option to the ArgumentParser that can be invoked to print the version string:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">prog</span><span class="o">=</span><span class="s">&#39;PROG&#39;</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s">&#39;</span><span class="si">%(prog)s</span><span class="s"> 1.2.1&#39;</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">prog</span><span class="o">=</span><span class="s">&#39;PROG&#39;</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s">&#39;</span><span class="si">%(prog)s</span><span class="s"> 3.5&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">print_help</span><span class="p">()</span>
 <span class="go">usage: PROG [-h] [-v]</span>
 
@@ -115,7 +116,7 @@ class </em><tt class="descname">ArgumentParser</tt><big>(</big><span class="opti
 <span class="go">  -h, --help     show this help message and exit</span>
 <span class="go">  -v, --version  show program&#39;s version number and exit</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">([</span><span class="s">&#39;-v&#39;</span><span class="p">])</span>
-<span class="go">PROG 1.2.1</span>
+<span class="go">PROG 3.5</span>
 </pre></div>
 </div>
 <p>Note you can use the <tt class="docutils literal"><span class="pre">%(prog)s</span></tt> format specifier to insert the program name into the version string.</p>
@@ -161,9 +162,24 @@ optional arguments:
 <p>The <tt class="docutils literal"><span class="pre">prefix_chars=</span></tt> argument defaults to <tt class="docutils literal"><span class="pre">'-'</span></tt>. Supplying a set of characters that does not include <tt class="docutils literal"><span class="pre">'-'</span></tt> will cause <tt class="docutils literal"><span class="pre">-f/--foo</span></tt> options to be disallowed.
 Note that most parent parsers will specify <tt class="xref docutils literal"><span class="pre">add_help()</span></tt> <tt class="docutils literal"><span class="pre">=False</span></tt>. Otherwise, the ArgumentParser will see two <tt class="docutils literal"><span class="pre">-h/--help</span></tt> options (one in the parent and one in the child) and raise an error.</p>
 </div>
+<div class="section" id="fromfile-prefix-chars">
+<h2>fromfile_prefix_chars<a class="headerlink" href="#fromfile-prefix-chars" title="Permalink to this headline">¶</a></h2>
+<p>Sometimes, e.g. for particularly long argument lists, it may make sense to keep the list of arguments in a file rather than typing it out at the command line.
+If the <tt class="docutils literal"><span class="pre">fromfile_prefix_chars=</span></tt> argument is given to the ArgumentParser constructor, then arguments that start with any of the specified characters will be treated as files, and will be replaced by the arguments they contain. For example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="nb">open</span><span class="p">(</span><span class="s">&#39;args.txt&#39;</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;-f</span><span class="se">\n</span><span class="s">bar&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">fromfile_prefix_chars</span><span class="o">=</span><span class="s">&#39;@&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-f&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">([</span><span class="s">&#39;-f&#39;</span><span class="p">,</span> <span class="s">&#39;foo&#39;</span><span class="p">,</span> <span class="s">&#39;@args.txt&#39;</span><span class="p">])</span>
+<span class="go">Namespace(f=&#39;bar&#39;)</span>
+</pre></div>
+</div>
+<p>Arguments read from a file must be one per line (with each whole line being considered a single argument) and are treated as if they were in the same place as the original file referencing argument on the command line.
+So in the example above, the expression <tt class="docutils literal"><span class="pre">['-f',</span> <span class="pre">'foo',</span> <span class="pre">'&#64;args.txt']</span></tt> is considered equivalent to the expression <tt class="docutils literal"><span class="pre">['-f',</span> <span class="pre">'foo',</span> <span class="pre">'-f',</span> <span class="pre">'bar']</span></tt>.</p>
+<p>The <tt class="docutils literal"><span class="pre">fromfile_prefix_chars=</span></tt> argument defaults to <tt class="xref docutils literal"><span class="pre">None</span></tt>, meaning that arguments will never be treated as file references.</p>
+</div>
 <div class="section" id="argument-default">
 <h2>argument_default<a class="headerlink" href="#argument-default" title="Permalink to this headline">¶</a></h2>
-<p>Generally, argument defaults are specified either by passing a <a href="#id1"><span class="problematic" id="id2">default_</span></a> to <a title="add_argument" class="reference external" href="add_argument.html#add_argument"><tt class="xref docutils literal"><span class="pre">add_argument()</span></tt></a> or by calling the <a title="set_defaults" class="reference external" href="other-methods.html#set_defaults"><tt class="xref docutils literal"><span class="pre">set_defaults()</span></tt></a> methods with a specific set of name-value pairs. Sometimes however, it may be useful to specify a single parser-wide default for arguments. This can be accomplished by passing the <tt class="docutils literal"><span class="pre">argument_default=</span></tt> keyword argument to ArgumentParser. For example, to globally suppress attribute creation on <a title="parse_args" class="reference external" href="parse_args.html#parse_args"><tt class="xref docutils literal"><span class="pre">parse_args()</span></tt></a> calls, we supply <tt class="docutils literal"><span class="pre">argument_default=SUPPRESS</span></tt>:</p>
+<p>Generally, argument defaults are specified either by passing a default to <a title="add_argument" class="reference external" href="add_argument.html#add_argument"><tt class="xref docutils literal"><span class="pre">add_argument()</span></tt></a> or by calling the <a title="set_defaults" class="reference external" href="other-methods.html#set_defaults"><tt class="xref docutils literal"><span class="pre">set_defaults()</span></tt></a> methods with a specific set of name-value pairs. Sometimes however, it may be useful to specify a single parser-wide default for arguments. This can be accomplished by passing the <tt class="docutils literal"><span class="pre">argument_default=</span></tt> keyword argument to ArgumentParser. For example, to globally suppress attribute creation on <a title="parse_args" class="reference external" href="parse_args.html#parse_args"><tt class="xref docutils literal"><span class="pre">parse_args()</span></tt></a> calls, we supply <tt class="docutils literal"><span class="pre">argument_default=SUPPRESS</span></tt>:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">argument_default</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">SUPPRESS</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--foo&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;bar&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s">&#39;?&#39;</span><span class="p">)</span>
@@ -194,6 +210,9 @@ Note that most parent parsers will specify <tt class="xref docutils literal"><sp
 </div>
 <div class="section" id="formatter-class">
 <h2>formatter_class<a class="headerlink" href="#formatter-class" title="Permalink to this headline">¶</a></h2>
+<p>ArgumentParser objects allow the help formatting to be customized by specifying an alternate formatting class.
+Currently, there are three such classes: <tt class="docutils literal"><span class="pre">argparse.RawDescriptionHelpFormatter</span></tt>, <tt class="docutils literal"><span class="pre">argparse.RawTextHelpFormatter</span></tt> and <tt class="docutils literal"><span class="pre">argparse.ArgumentDefaultsHelpFormatter</span></tt>.
+The first two allow more control over how textual descriptions are displayed, while the last automatically adds information about argument default values.</p>
 <p>By default, ArgumentParser objects line-wrap the <a class="reference internal" href="#description">description</a> and <a class="reference internal" href="#epilog">epilog</a> texts in command-line help messages:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="n">prog</span><span class="o">=</span><span class="s">&#39;PROG&#39;</span><span class="p">,</span>
@@ -241,6 +260,23 @@ Note that most parent parsers will specify <tt class="xref docutils literal"><sp
 </pre></div>
 </div>
 <p>If you want to maintain whitespace for all sorts of help text (including argument descriptions), you can use <tt class="docutils literal"><span class="pre">argparse.RawTextHelpFormatter</span></tt>.</p>
+<p>The other formatter class available, <tt class="docutils literal"><span class="pre">argparse.ArgumentDefaultsHelpFormatter</span></tt>, will add information about the default value of each of the arguments:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">prog</span><span class="o">=</span><span class="s">&#39;PROG&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">formatter_class</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentDefaultsHelpFormatter</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--foo&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mf">42</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;FOO!&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;bar&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s">&#39;*&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">[</span><span class="mf">1</span><span class="p">,</span> <span class="mf">2</span><span class="p">,</span> <span class="mf">3</span><span class="p">],</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;BAR!&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">print_help</span><span class="p">()</span>
+<span class="go">usage: PROG [-h] [--foo FOO] [bar [bar ...]]</span>
+
+<span class="go">positional arguments:</span>
+<span class="go">  bar         BAR! (default: [1, 2, 3])</span>
+
+<span class="go">optional arguments:</span>
+<span class="go">  -h, --help  show this help message and exit</span>
+<span class="go">  --foo FOO   FOO! (default: 42)</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="conflict-handler">
 <h2>conflict_handler<a class="headerlink" href="#conflict-handler" title="Permalink to this headline">¶</a></h2>
@@ -363,6 +399,7 @@ optional arguments:
 <li><a class="reference external" href="#version">version</a></li>
 <li><a class="reference external" href="#add-help">add_help</a></li>
 <li><a class="reference external" href="#prefix-chars">prefix_chars</a></li>
+<li><a class="reference external" href="#fromfile-prefix-chars">fromfile_prefix_chars</a></li>
 <li><a class="reference external" href="#argument-default">argument_default</a></li>
 <li><a class="reference external" href="#parents">parents</a></li>
 <li><a class="reference external" href="#formatter-class">formatter_class</a></li>
@@ -413,7 +450,7 @@ optional arguments:
         <li class="right" >
           <a href="api-docs.html" title="API documentation"
              >previous</a> |</li>
-        <li><a href="index.html">argparse v0.9.1 documentation</a> &raquo;</li>
+        <li><a href="index.html">argparse v1.0 documentation</a> &raquo;</li>
           <li><a href="api-docs.html" >API documentation</a> &raquo;</li> 
       </ul>
     </div>

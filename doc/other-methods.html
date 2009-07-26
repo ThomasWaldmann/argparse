@@ -5,13 +5,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Other methods &mdash; argparse v0.9.1 documentation</title>
+    <title>Other methods &mdash; argparse v1.0 documentation</title>
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.9.1',
+        VERSION:     '1.0',
         COLLAPSE_MODINDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -19,7 +19,7 @@
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="argparse v0.9.1 documentation" href="index.html" />
+    <link rel="top" title="argparse v1.0 documentation" href="index.html" />
     <link rel="up" title="API documentation" href="api-docs.html" />
     <link rel="next" title="Other utilities" href="other-utilities.html" />
     <link rel="prev" title="The parse_args() method" href="parse_args.html" /> 
@@ -37,7 +37,7 @@
         <li class="right" >
           <a href="parse_args.html" title="The parse_args() method"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">argparse v0.9.1 documentation</a> &raquo;</li>
+        <li><a href="index.html">argparse v1.0 documentation</a> &raquo;</li>
           <li><a href="api-docs.html" accesskey="U">API documentation</a> &raquo;</li> 
       </ul>
     </div>  
@@ -49,6 +49,25 @@
             
   <div class="section" id="other-methods">
 <h1>Other methods<a class="headerlink" href="#other-methods" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="partial-parsing">
+<h2>Partial parsing<a class="headerlink" href="#partial-parsing" title="Permalink to this headline">¶</a></h2>
+<dl class="method">
+<dt id="parse_known_args">
+<tt class="descname">parse_known_args</tt><big>(</big><span class="optional">[</span><em>args</em><span class="optional">]</span><span class="optional">[</span>, <em>namespace</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#parse_known_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p>Sometimes a script may only parse a few of the command line arguments, passing the remaining arguments on to another script or program.
+In these cases, the <a title="parse_known_args" class="reference internal" href="#parse_known_args"><tt class="xref docutils literal"><span class="pre">parse_known_args()</span></tt></a> method can be useful.
+It works much like <a title="parse_args" class="reference external" href="parse_args.html#parse_args"><tt class="xref docutils literal"><span class="pre">parse_args()</span></tt></a> except that it does not produce an error when extra arguments are present.
+Instead, it returns a two item tuple containing the populated namespace and the list of remaining argument strings.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--foo&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;bar&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">parse_known_args</span><span class="p">([</span><span class="s">&#39;--foo&#39;</span><span class="p">,</span> <span class="s">&#39;--badger&#39;</span><span class="p">,</span> <span class="s">&#39;BAR&#39;</span><span class="p">,</span> <span class="s">&#39;spam&#39;</span><span class="p">])</span>
+<span class="go">(Namespace(bar=&#39;BAR&#39;, foo=True), [&#39;--badger&#39;, &#39;spam&#39;])</span>
+</pre></div>
+</div>
+</div>
 <div class="section" id="printing-help">
 <h2>Printing help<a class="headerlink" href="#printing-help" title="Permalink to this headline">¶</a></h2>
 <p>In most typical applications, <a title="parse_args" class="reference external" href="parse_args.html#parse_args"><tt class="xref docutils literal"><span class="pre">parse_args()</span></tt></a> will take care of formatting and printing any usage or error messages. However, should you want to format or print these on your own, several methods are available:</p>
@@ -155,6 +174,25 @@
 <span class="go">optional arguments:</span>
 <span class="go">  -h, --help     show this help message and exit</span>
 <span class="go">  --baz {X,Y,Z}  baz help</span>
+</pre></div>
+</div>
+<p>The <a title="add_subparsers" class="reference internal" href="#add_subparsers"><tt class="xref docutils literal"><span class="pre">add_subparsers()</span></tt></a> method also supports <tt class="docutils literal"><span class="pre">title</span></tt> and <tt class="docutils literal"><span class="pre">description</span></tt> keyword arguments.  When either is present, the subparser&#8217;s commands will appear in their own group in the help output.  For example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">subparsers</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_subparsers</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s">&#39;subcommands&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                                   <span class="n">description</span><span class="o">=</span><span class="s">&#39;valid subcommands&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                                   <span class="n">help</span><span class="o">=</span><span class="s">&#39;additional help&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;foo&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;bar&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">([</span><span class="s">&#39;-h&#39;</span><span class="p">])</span>
+<span class="go">usage:  [-h] {foo,bar} ...</span>
+
+<span class="go">optional arguments:</span>
+<span class="go">  -h, --help  show this help message and exit</span>
+
+<span class="go">subcommands:</span>
+<span class="go">  valid subcommands</span>
+
+<span class="go">  {foo,bar}   additional help</span>
 </pre></div>
 </div>
 <p>One particularly effective way of handling sub-commands is to combine the use of the <a title="add_subparsers" class="reference internal" href="#add_subparsers"><tt class="xref docutils literal"><span class="pre">add_subparsers()</span></tt></a> method with calls to <a title="set_defaults" class="reference internal" href="#set_defaults"><tt class="xref docutils literal"><span class="pre">set_defaults()</span></tt></a> so that each subparser knows which Python function it should execute.  For example:</p>
@@ -291,6 +329,7 @@
             <h3><a href="index.html">Table Of Contents</a></h3>
             <ul>
 <li><a class="reference external" href="">Other methods</a><ul>
+<li><a class="reference external" href="#partial-parsing">Partial parsing</a></li>
 <li><a class="reference external" href="#printing-help">Printing help</a></li>
 <li><a class="reference external" href="#parser-defaults">Parser defaults</a></li>
 <li><a class="reference external" href="#sub-commands">Sub-commands</a></li>
@@ -340,7 +379,7 @@
         <li class="right" >
           <a href="parse_args.html" title="The parse_args() method"
              >previous</a> |</li>
-        <li><a href="index.html">argparse v0.9.1 documentation</a> &raquo;</li>
+        <li><a href="index.html">argparse v1.0 documentation</a> &raquo;</li>
           <li><a href="api-docs.html" >API documentation</a> &raquo;</li> 
       </ul>
     </div>

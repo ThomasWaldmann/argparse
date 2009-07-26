@@ -1,5 +1,5 @@
-argparse 0.9.2
-==============
+argparse 1.0
+============
 
 The argparse module makes writing command line tools in Python easy.
 Just briefly describe your command line interface and argparse will
@@ -24,7 +24,7 @@ including:
 REQUIREMENTS & INSTALLATION
 ---------------------------
         
-The argparse module requires Python 2.4 or greater, and can be
+The argparse module requires Python 2.3 or greater, and can be
 installed with the standard Python installation procedure:
 
   python setup.py install
