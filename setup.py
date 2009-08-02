@@ -14,9 +14,21 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import textwrap
-import distutils.core
 import argparse
+import distutils.core
+import os
+import re
+
+
+def read_description():
+    readme_file = open(os.path.join(os.path.dirname(__file__), 'README.txt'))
+    readme_text = readme_file.read()
+    readme_file.close()
+    main_desc_regexp = r'^argparse\s*[\d.]*\n=======+\n(.*)Requirements &'
+    main_desc, = re.findall(main_desc_regexp, readme_text, re.DOTALL)
+    avail_desc_regexp = r'Availability & Documentation\n-----+\n(.*)'
+    avail_desc, = re.findall(avail_desc_regexp, readme_text, re.DOTALL)
+    return main_desc + avail_desc
 
 distutils.core.setup(
     name='argparse',
@@ -25,10 +37,7 @@ distutils.core.setup(
     author_email='steven.bethard@gmail.com',
     url='http://code.google.com/p/argparse/',
     description='Python command-line parsing library',
-    long_description = textwrap.dedent("""\
-        The argparse module provides an easy, declarative interface for
-        creating command line tools.
-        """),
+    long_description = read_description(),
     license='Apache 2.0',
     classifiers=[
         'Development Status :: 5 - Production/Stable',
