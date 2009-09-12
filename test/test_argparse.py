@@ -44,6 +44,14 @@ except NameError:
             result.reverse()
         return result
 
+# silence Python 2.6 buggy warnings about Exception.message
+if sys.version_info[:2] == (2, 6):
+    import warnings
+    warnings.filterwarnings(
+        action='ignore',
+        message='BaseException.message has been deprecated as of Python 2.6',
+        category=DeprecationWarning)
+
 
 class TestCase(unittest.TestCase):
 
