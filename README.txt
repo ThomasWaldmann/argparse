@@ -1,5 +1,5 @@
-argparse 1.0
-============
+argparse 1.0.1
+==============
 The argparse module provides an easy, declarative interface for
 creating command line tools, which knows how to:
 
