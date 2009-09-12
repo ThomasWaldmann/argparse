@@ -2095,12 +2095,12 @@ class TestMutuallyExclusiveLong(MEMixin, TestCase):
     ]
 
     usage_when_not_required = '''\
-    usage: PROG [-h] [--abcde ABCDE] [--fghij FGHIJ] [--klmno KLMNO | --pqrst
-                PQRST]
+    usage: PROG [-h] [--abcde ABCDE] [--fghij FGHIJ]
+                [--klmno KLMNO | --pqrst PQRST]
     '''
     usage_when_required = '''\
-    usage: PROG [-h] [--abcde ABCDE] [--fghij FGHIJ] (--klmno KLMNO | --pqrst
-                PQRST)
+    usage: PROG [-h] [--abcde ABCDE] [--fghij FGHIJ]
+                (--klmno KLMNO | --pqrst PQRST)
     '''
     help = '''\
 
@@ -2851,6 +2851,96 @@ class TestHelpOnlyUserGroups(HelpTestCase):
         yyyy:
           b     b
           -y Y  y
+        '''
+    version = ''
+
+
+class TestHelpUsageLongProg(HelpTestCase):
+    """Test usage messages where the prog is long"""
+
+    parser_signature = Sig(prog='P' * 60)
+    argument_signatures = [
+        Sig('-w', metavar='W'),
+        Sig('-x', metavar='X'),
+        Sig('a'),
+        Sig('b'),
+    ]
+    argument_group_signatures = []
+    usage = '''\
+        usage: PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
+               [-h] [-w W] [-x X] a b
+        '''
+    help = usage + '''\
+
+        positional arguments:
+          a
+          b
+
+        optional arguments:
+          -h, --help  show this help message and exit
+          -w W
+          -x X
+        '''
+    version = ''
+
+
+class TestHelpUsageLongProgOptionsWrap(HelpTestCase):
+    """Test usage messages where the prog is long and the optionals wrap"""
+
+    parser_signature = Sig(prog='P' * 60)
+    argument_signatures = [
+        Sig('-w', metavar='W' * 25),
+        Sig('-x', metavar='X' * 25),
+        Sig('-y', metavar='Y' * 25),
+        Sig('-z', metavar='Z' * 25),
+        Sig('a'),
+        Sig('b'),
+    ]
+    argument_group_signatures = []
+    usage = '''\
+        usage: PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
+               [-h] [-w WWWWWWWWWWWWWWWWWWWWWWWWW] \
+[-x XXXXXXXXXXXXXXXXXXXXXXXXX]
+               [-y YYYYYYYYYYYYYYYYYYYYYYYYY] [-z ZZZZZZZZZZZZZZZZZZZZZZZZZ]
+               a b
+        '''
+    help = usage + '''\
+
+        positional arguments:
+          a
+          b
+
+        optional arguments:
+          -h, --help            show this help message and exit
+          -w WWWWWWWWWWWWWWWWWWWWWWWWW
+          -x XXXXXXXXXXXXXXXXXXXXXXXXX
+          -y YYYYYYYYYYYYYYYYYYYYYYYYY
+          -z ZZZZZZZZZZZZZZZZZZZZZZZZZ
+        '''
+    version = ''
+
+
+class TestHelpUsageLongProgPositionalsWrap(HelpTestCase):
+    """Test usage messages where the prog is long and the positionals wrap"""
+
+    parser_signature = Sig(prog='P' * 60, add_help=False)
+    argument_signatures = [
+        Sig('a' * 25),
+        Sig('b' * 25),
+        Sig('c' * 25),
+    ]
+    argument_group_signatures = []
+    usage = '''\
+        usage: PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
+               aaaaaaaaaaaaaaaaaaaaaaaaa bbbbbbbbbbbbbbbbbbbbbbbbb
+               ccccccccccccccccccccccccc
+        '''
+    help = usage + '''\
+
+        positional arguments:
+          aaaaaaaaaaaaaaaaaaaaaaaaa
+          bbbbbbbbbbbbbbbbbbbbbbbbb
+          ccccccccccccccccccccccccc
         '''
     version = ''
 
