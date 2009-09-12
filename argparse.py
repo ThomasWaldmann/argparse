@@ -1281,6 +1281,17 @@ class _ActionsContainer(object):
             for action in group._group_actions:
                 group_map[action] = title_group_map[group.title]
 
+        # add container's mutually exclusive groups
+        # NOTE: if add_mutually_exclusive_group ever gains title= and
+        # description= then this code will need to be expanded as above
+        for group in container._mutually_exclusive_groups:
+            mutex_group = self.add_mutually_exclusive_group(
+                required=group.required)
+
+            # map the actions to their new mutex group
+            for action in group._group_actions:
+                group_map[action] = mutex_group
+
         # add all actions to this container or their group
         for action in container._actions:
             group_map.get(action, self)._add_action(action)

@@ -1848,6 +1848,35 @@ class TestParentParsers(TestCase):
               -y Y
         '''))
 
+    def test_groups_parents(self):
+        parent = ErrorRaisingArgumentParser(add_help=False)
+        g = parent.add_argument_group(title='g', description='gd')
+        g.add_argument('-w')
+        g.add_argument('-x')
+        m = parent.add_mutually_exclusive_group()
+        m.add_argument('-y')
+        m.add_argument('-z')
+        parser = ErrorRaisingArgumentParser(parents=[parent])
+
+        self.assertRaises(ArgumentParserError, parser.parse_args,
+            ['-y', 'Y', '-z', 'Z'])
+
+        parser_help = parser.format_help()
+        self.assertEqual(parser_help, textwrap.dedent('''\
+            usage: test_argparse.py [-h] [-w W] [-x X] [-y Y | -z Z]
+
+            optional arguments:
+              -h, --help  show this help message and exit
+              -y Y
+              -z Z
+
+            g:
+              gd
+
+              -w W
+              -x X
+        '''))
+
 # ==============================
 # Mutually exclusive group tests
 # ==============================
