@@ -1420,17 +1420,36 @@ class TestTypeUserDefined(ParserTestCase):
         def __eq__(self, other):
             return (type(self), self.value) == (type(other), other.value)
 
-    def get_my_type(value):
-        return TestTypeUserDefined.MyType(value)
-
     argument_signatures = [
-        Sig('-x', type=get_my_type),
-        Sig('spam', type=get_my_type),
+        Sig('-x', type=MyType),
+        Sig('spam', type=MyType),
     ]
     failures = []
     successes = [
         ('a -x b', NS(x=MyType('b'), spam=MyType('a'))),
         ('-xf g', NS(x=MyType('f'), spam=MyType('g'))),
+    ]
+
+
+class TestTypeClassicClass(ParserTestCase):
+    """Test a classic class type"""
+
+    class C:
+
+        def __init__(self, value):
+            self.value = value
+
+        def __eq__(self, other):
+            return (type(self), self.value) == (type(other), other.value)
+
+    argument_signatures = [
+        Sig('-x', type=C),
+        Sig('spam', type=C),
+    ]
+    failures = []
+    successes = [
+        ('a -x b', NS(x=C('b'), spam=C('a'))),
+        ('-xf g', NS(x=C('f'), spam=C('g'))),
     ]
 
 

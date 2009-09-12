@@ -2125,8 +2125,9 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
     def _get_value(self, action, arg_string):
         type_func = self._registry_get('type', action.type, action.type)
         if not hasattr(type_func, '__call__'):
-            msg = _('%r is not callable')
-            raise ArgumentError(action, msg % type_func)
+            if not hasattr(type_func, '__bases__'): # classic classes
+                msg = _('%r is not callable')
+                raise ArgumentError(action, msg % type_func)
 
         # convert the value to the appropriate type
         try:
