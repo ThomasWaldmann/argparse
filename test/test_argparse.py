@@ -1826,21 +1826,20 @@ class TestParentParsers(TestCase):
         group.add_argument('-b', action='store_true')
 
     def test_single_parent(self):
-        parser = ErrorRaisingArgumentParser(
-            parents=[self.wxyz_parent])
+        parser = ErrorRaisingArgumentParser(parents=[self.wxyz_parent])
         self.assertEqual(parser.parse_args('-y 1 2 --w 3'.split()),
                          NS(w='3', y='1', z='2'))
 
     def test_single_parent_mutex(self):
         self._test_mutex_ab(self.ab_mutex_parent.parse_args)
-        self._test_mutex_ab(
-           ErrorRaisingArgumentParser(parents=[self.ab_mutex_parent]).parse_args)
+        parser = ErrorRaisingArgumentParser(parents=[self.ab_mutex_parent])
+        self._test_mutex_ab(parser.parse_args)
 
     def test_single_granparent_mutex(self):
-        parser = ErrorRaisingArgumentParser(
-            add_help=False, parents=[self.ab_mutex_parent])
-        self._test_mutex_ab(
-            ErrorRaisingArgumentParser(parents=[parser]).parse_args)
+        parents = [self.ab_mutex_parent]
+        parser = ErrorRaisingArgumentParser(add_help=False, parents=parents)
+        parser = ErrorRaisingArgumentParser(parents=[parser])
+        self._test_mutex_ab(parser.parse_args)
 
     def _test_mutex_ab(self, parse_args):
         self.assertEqual(parse_args([]), NS(a=False, b=False))
@@ -1853,14 +1852,14 @@ class TestParentParsers(TestCase):
         self.assertArgumentParserError(parse_args, ['-b', '-c'])
 
     def test_multiple_parents(self):
-        parser = ErrorRaisingArgumentParser(
-            parents=[self.abcd_parent, self.wxyz_parent])
+        parents = [self.abcd_parent, self.wxyz_parent]
+        parser = ErrorRaisingArgumentParser(parents=parents)
         self.assertEqual(parser.parse_args('--d 1 --w 2 3 4'.split()),
                          NS(a='3', b=None, d='1', w='2', y=None, z='4'))
 
     def test_multiple_parents_mutex(self):
-        parser = ErrorRaisingArgumentParser(
-            parents=[self.ab_mutex_parent, self.wxyz_parent])
+        parents = [self.ab_mutex_parent, self.wxyz_parent]
+        parser = ErrorRaisingArgumentParser(parents=parents)
         self.assertEqual(parser.parse_args('-a --w 2 3'.split()),
                          NS(a=True, b=False, w='2', y=None, z='3'))
         self.assertArgumentParserError(
@@ -1881,16 +1880,15 @@ class TestParentParsers(TestCase):
             parents=[self.abcd_parent, self.ab_mutex_parent])
 
     def test_same_argument_name_parents(self):
-        parser = ErrorRaisingArgumentParser(
-            parents=[self.wxyz_parent, self.z_parent])
+        parents = [self.wxyz_parent, self.z_parent]
+        parser = ErrorRaisingArgumentParser(parents=parents)
         self.assertEqual(parser.parse_args('1 2'.split()),
                          NS(w=None, y=None, z='2'))
 
     def test_subparser_parents(self):
         parser = ErrorRaisingArgumentParser()
         subparsers = parser.add_subparsers()
-        abcde_parser = subparsers.add_parser(
-            'bar', parents=[self.abcd_parent])
+        abcde_parser = subparsers.add_parser('bar', parents=[self.abcd_parent])
         abcde_parser.add_argument('e')
         self.assertEqual(parser.parse_args('bar -b 1 --d 2 3 4'.split()),
                          NS(a='3', b='1', d='2', e='4'))
@@ -1898,23 +1896,25 @@ class TestParentParsers(TestCase):
     def test_subparser_parents_mutex(self):
         parser = ErrorRaisingArgumentParser()
         subparsers = parser.add_subparsers()
-        abc_parser = subparsers.add_parser(
-            'foo', parents=[self.ab_mutex_parent])
+        parents = [self.ab_mutex_parent]
+        abc_parser = subparsers.add_parser('foo', parents=parents)
         c_group = abc_parser.add_argument_group('c_group')
         c_group.add_argument('c')
-        wxyzabe_parser = subparsers.add_parser(
-            'bar', parents=[self.wxyz_parent, self.ab_mutex_parent])
+        parents = [self.wxyz_parent, self.ab_mutex_parent]
+        wxyzabe_parser = subparsers.add_parser('bar', parents=parents)
         wxyzabe_parser.add_argument('e')
         self.assertEqual(parser.parse_args('foo -a 4'.split()),
                          NS(a=True, b=False, c='4'))
         self.assertEqual(parser.parse_args('bar -b  --w 2 3 4'.split()),
                          NS(a=False, b=True, w='2', y=None, z='3', e='4'))
-        self.assertArgumentParserError(parser.parse_args, 'foo -a -b 4'.split())
-        self.assertArgumentParserError(parser.parse_args, 'bar -b -a 4'.split())
+        self.assertArgumentParserError(
+            parser.parse_args, 'foo -a -b 4'.split())
+        self.assertArgumentParserError(
+            parser.parse_args, 'bar -b -a 4'.split())
 
     def test_parent_help(self):
-        parser = ErrorRaisingArgumentParser(
-            parents=[self.abcd_parent, self.wxyz_parent])
+        parents = [self.abcd_parent, self.wxyz_parent]
+        parser = ErrorRaisingArgumentParser(parents=parents)
         parser_help = parser.format_help()
         self.assertEqual(parser_help, textwrap.dedent('''\
             usage: test_argparse.py [-h] [-b B] [--d D] [--w W] [-y Y] a z
@@ -2315,35 +2315,52 @@ class TestMutuallyExclusiveOptionalsAndPositionalsMixed(MEMixin, TestCase):
 # =================================================
 
 class MEPBase(object):
+
     def get_parser(self, required=None):
         parent = super(MEPBase, self).get_parser(required=required)
         parser = ErrorRaisingArgumentParser(
             prog=parent.prog, add_help=False, parents=[parent])
         return parser
 
+
 class TestMutuallyExclusiveGroupErrorsParent(
-    MEPBase, TestMutuallyExclusiveGroupErrors): pass
+    MEPBase, TestMutuallyExclusiveGroupErrors):
+    pass
+
 
 class TestMutuallyExclusiveSimpleParent(
-    MEPBase, TestMutuallyExclusiveSimple): pass
+    MEPBase, TestMutuallyExclusiveSimple):
+    pass
+
 
 class TestMutuallyExclusiveLongParent(
-    MEPBase, TestMutuallyExclusiveLong): pass
+    MEPBase, TestMutuallyExclusiveLong):
+    pass
+
 
 class TestMutuallyExclusiveFirstSuppressedParent(
-    MEPBase, TestMutuallyExclusiveFirstSuppressed): pass
+    MEPBase, TestMutuallyExclusiveFirstSuppressed):
+    pass
+
 
 class TestMutuallyExclusiveManySuppressedParent(
-    MEPBase, TestMutuallyExclusiveManySuppressed): pass
+    MEPBase, TestMutuallyExclusiveManySuppressed):
+    pass
+
 
 class TestMutuallyExclusiveOptionalAndPositionalParent(
-    MEPBase, TestMutuallyExclusiveOptionalAndPositional): pass
+    MEPBase, TestMutuallyExclusiveOptionalAndPositional):
+    pass
+
 
 class TestMutuallyExclusiveOptionalsMixedParent(
-    MEPBase, TestMutuallyExclusiveOptionalsMixed): pass
+    MEPBase, TestMutuallyExclusiveOptionalsMixed):
+    pass
+
 
 class TestMutuallyExclusiveOptionalsAndPositionalsMixedParent(
-    MEPBase, TestMutuallyExclusiveOptionalsAndPositionalsMixed): pass
+    MEPBase, TestMutuallyExclusiveOptionalsAndPositionalsMixed):
+    pass
 
 # =================
 # Set default tests
