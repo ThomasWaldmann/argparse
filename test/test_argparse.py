@@ -3126,7 +3126,7 @@ class TestHelpVariableExpansion(HelpTestCase):
     parser_signature = Sig(prog='PROG')
     argument_signatures = [
         Sig('-x', type='int',
-            help='x %(prog)s %(default)s %(type)s'),
+            help='x %(prog)s %(default)s %(type)s %%'),
         Sig('-y', action='store_const', default=42, const='XXX',
             help='y %(prog)s %(default)s %(const)s'),
         Sig('--foo', choices='abc',
@@ -3154,7 +3154,7 @@ class TestHelpVariableExpansion(HelpTestCase):
 
         optional arguments:
           -h, --help     show this help message and exit
-          -x X           x PROG None int
+          -x X           x PROG None int %
           -y             y PROG 42 XXX
           --foo {a,b,c}  foo PROG None a, b, c
           --bar BBB      bar PROG baz bar
@@ -3163,6 +3163,36 @@ class TestHelpVariableExpansion(HelpTestCase):
           -a A           a PROG None
           -b B           b PROG -1
         '''
+    version = ''
+
+
+class TestHelpVariableExpansionUsageSupplied(HelpTestCase):
+    """Test that variables are expanded properly when usage= is present"""
+
+    parser_signature = Sig(prog='PROG', usage='%(prog)s FOO')
+    argument_signatures = []
+    argument_group_signatures = []
+    usage = ('''\
+        usage: PROG FOO
+        ''')
+    help = usage + '''\
+
+        optional arguments:
+          -h, --help  show this help message and exit
+        '''
+    version = ''
+
+
+class TestHelpVariableExpansionNoArguments(HelpTestCase):
+    """Test that variables are expanded properly with no arguments"""
+
+    parser_signature = Sig(prog='PROG', add_help=False)
+    argument_signatures = []
+    argument_group_signatures = []
+    usage = ('''\
+        usage: PROG
+        ''')
+    help = usage
     version = ''
 
 

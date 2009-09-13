@@ -306,7 +306,7 @@ class HelpFormatter(object):
     # Help-formatting methods
     # =======================
     def format_help(self):
-        help = self._root_section.format_help() % dict(prog=self._prog)
+        help = self._root_section.format_help()
         if help:
             help = self._long_break_matcher.sub('\n\n', help)
             help = help.strip('\n') + '\n'
@@ -321,9 +321,13 @@ class HelpFormatter(object):
         if prefix is None:
             prefix = _('usage: ')
 
+        # if usage is specified, use that
+        if usage is not None:
+            usage = usage % dict(prog=self._prog)
+
         # if no optionals or positionals are available, usage is just prog
-        if usage is None and not actions:
-            usage = '%(prog)s'
+        elif usage is None and not actions:
+            usage = '%(prog)s' % dict(prog=self._prog)
 
         # if optionals and positionals are available, calculate usage
         elif usage is None:
