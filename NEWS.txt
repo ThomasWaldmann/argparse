@@ -1,0 +1,11 @@
+What's New in argparse 1.0.1
+============================
+
+- Issue #21: Stop rejecting classic classes as type= arguments.
+- Issue #24: Improve error messages when nargs=0 for store and append actions.
+- Issue #25 and #17: Silence Python 2.6 buggy Exception.message warnings.
+- Issue #27: Stop dropping mutually exclusive groups from parents= arguments.
+- Issue #28: Set svn:eol-style=native properly for text files.
+- Wrap long prog= values properly.
+- Make sure literal % can be used in help messages.
+- Add a NEWS file.
