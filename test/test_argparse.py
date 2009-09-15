@@ -3916,11 +3916,18 @@ class TestNamespace(TestCase):
 
 class TestEncoding(TestCase):
 
+    def _test_module_encoding(self, path):
+        if path.endswith('.pyc'):
+            return path[:-1]
+        else:
+            return path
+        codecs.open(path, 'r', 'utf8').read()
+
     def test_argparse_module_encoding(self):
-        text = codecs.open(argparse.__file__, 'r', 'utf8').read()
+        self._test_module_encoding(argparse.__file__)
 
     def test_test_argparse_module_encoding(self):
-        text = codecs.open(__file__, 'r', 'utf8').read()
+        self._test_module_encoding(__file__)
 
 # ===================
 # ArgumentError tests
