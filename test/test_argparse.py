@@ -3918,7 +3918,7 @@ class TestEncoding(TestCase):
 
     def _test_module_encoding(self, path):
         if path.endswith('.pyc'):
-            path[:-1]
+            path = path[:-1]
         codecs.open(path, 'r', 'utf8').read()
 
     def test_argparse_module_encoding(self):
