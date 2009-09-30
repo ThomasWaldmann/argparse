@@ -3962,5 +3962,16 @@ class TestParseKnownArgs(TestCase):
         self.failUnlessEqual(NS(v=3, spam=True, badger="B"), args)
         self.failUnlessEqual(["C", "--foo", "4"], extras)
 
+# ============================
+# from argparse import * tests
+# ============================
+
+class TestImportStar(TestCase):
+
+    def test(self):
+        for name in argparse.__all__:
+            self.failUnless(hasattr(argparse, name))
+
+
 if __name__ == '__main__':
     unittest.main()

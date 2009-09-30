@@ -84,7 +84,7 @@ __all__ = [
     'FileType',
     'HelpFormatter',
     'RawDescriptionHelpFormatter',
-    'RawTextHelpFormatter'
+    'RawTextHelpFormatter',
     'ArgumentDefaultsHelpFormatter',
 ]
 
