@@ -1121,6 +1121,23 @@ class TestOptionalsNumericAndPositionals(ParserTestCase):
     ]
 
 
+class TestOptionalsAlmostNumericAndPositionals(ParserTestCase):
+    """Tests negative number args when almost numeric options are present"""
+
+    argument_signatures = [
+        Sig('x', nargs='?'),
+        Sig('-k4', dest='y', action='store_true'),
+    ]
+    failures = ['-k3']
+    successes = [
+        ('', NS(x=None, y=False)),
+        ('-2', NS(x='-2', y=False)),
+        ('a', NS(x='a', y=False)),
+        ('-k4', NS(x=None, y=True)),
+        ('-k4 a', NS(x='a', y=True)),
+    ]
+
+
 class TestEmptyAndSpaceContainingArguments(ParserTestCase):
 
     argument_signatures = [
