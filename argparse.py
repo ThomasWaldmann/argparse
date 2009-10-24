@@ -504,6 +504,8 @@ class HelpFormatter(object):
         return text
 
     def _format_text(self, text):
+        if '%(prog)' in text:
+            text = text % dict(prog=self._prog)
         text_width = self._width - self._current_indent
         indent = ' ' * self._current_indent
         return self._fill_text(text, text_width, indent) + '\n\n'
@@ -1014,6 +1016,7 @@ class _VersionAction(Action):
 
     def __init__(self,
                  option_strings,
+                 version=None,
                  dest=SUPPRESS,
                  default=SUPPRESS,
                  help=None):
@@ -1023,10 +1026,15 @@ class _VersionAction(Action):
             default=default,
             nargs=0,
             help=help)
+        self.version = version
 
     def __call__(self, parser, namespace, values, option_string=None):
-        parser.print_version()
-        parser.exit()
+        version = self.version
+        if version is None:
+            version = parser.version
+        formatter = parser._get_formatter()
+        formatter.add_text(version)
+        parser.exit(message=formatter.format_help())
 
 
 class _SubParsersAction(Action):
@@ -1578,6 +1586,7 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
         if self.version:
             self.add_argument(
                 '-v', '--version', action='version', default=SUPPRESS,
+                version=self.version,
                 help=_("show program's version number and exit"))
 
         # add parent arguments and defaults

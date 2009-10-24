@@ -1,10 +1,11 @@
 What's New in argparse 1.1
 ==========================
 
-- Issue #36: Get "from argparse import *" working
-- Issue #37: Stop treating two character alphanumeric flags as numbers
-- Issue #38: Better error messages when 'dest' occurs twice for positional arguments
-- Issue #39: Better error messages for invalid actions
+- Issue #22: Support more customization of version arguments.
+- Issue #36: Get "from argparse import *" working.
+- Issue #37: Stop treating two character alphanumeric flags as numbers.
+- Issue #38: Better error messages when 'dest' occurs twice for positional arguments.
+- Issue #39: Better error messages for invalid actions.
 
 
 What's New in argparse 1.0.1

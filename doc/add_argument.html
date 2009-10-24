@@ -139,6 +139,15 @@
 </pre></div>
 </div>
 </li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">'version'</span></tt> - This expects a <tt class="docutils literal"><span class="pre">version=</span></tt> keyword argument in the <a title="add_argument" class="reference internal" href="#add_argument"><tt class="xref docutils literal"><span class="pre">add_argument()</span></tt></a> call, and prints version information and exits when invoked. This can be used when the default <a title="ArgumentParser" class="reference external" href="ArgumentParser.html#ArgumentParser"><tt class="xref docutils literal"><span class="pre">ArgumentParser</span></tt></a> version flags <tt class="docutils literal"><span class="pre">-v,</span> <span class="pre">--version</span></tt> are not appropriate for your program.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">argparse</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">prog</span><span class="o">=</span><span class="s">&#39;PROG&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-V&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;version&#39;</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s">&#39;</span><span class="si">%(prog)s</span><span class="s"> 2.0&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">([</span><span class="s">&#39;-V&#39;</span><span class="p">])</span>
+<span class="go">PROG 2.0</span>
+</pre></div>
+</div>
+</li>
 </ul>
 <p>You can also specify an arbitrary action by passing an object that implements the Action API.  The easiest way to do this is to extend <tt class="docutils literal"><span class="pre">argparse.Action</span></tt>, supplying an appropriate <tt class="docutils literal"><span class="pre">__call__</span></tt> method.  The <tt class="docutils literal"><span class="pre">__call__</span></tt> method accepts four parameters:</p>
 <ul class="simple">

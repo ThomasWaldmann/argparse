@@ -3819,12 +3819,23 @@ class TestOptionalsHelpVersionActions(TestCase):
         self.assertPrintVersionExit(parser, '-v')
         self.assertPrintVersionExit(parser, '--version')
 
+    def test_version_format(self):
+        parser = ErrorRaisingArgumentParser(prog='PPP', version='%(prog)s 3.5')
+        msg = self._get_error_message(parser.parse_args, ['-v'])
+        self.assertEqual('PPP 3.5\n', msg)
+
     def test_version_no_help(self):
         parser = ErrorRaisingArgumentParser(add_help=False, version='1.0')
         self.assertArgumentParserError(parser, '-h')
         self.assertArgumentParserError(parser, '--help')
         self.assertPrintVersionExit(parser, '-v')
         self.assertPrintVersionExit(parser, '--version')
+
+    def test_version_action(self):
+        parser = ErrorRaisingArgumentParser(prog='XXX')
+        parser.add_argument('-V', action='version', version='%(prog)s 3.7')
+        msg = self._get_error_message(parser.parse_args, ['-V'])
+        self.assertEqual('XXX 3.7\n', msg)
 
     def test_no_help(self):
         parser = ErrorRaisingArgumentParser(add_help=False)

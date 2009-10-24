@@ -85,6 +85,14 @@ action
     >>> parser.parse_args('--str --int'.split())
     Namespace(types=[<type 'str'>, <type 'int'>])
 
+* ``'version'`` - This expects a ``version=`` keyword argument in the :meth:`add_argument` call, and prints version information and exits when invoked. This can be used when the default :class:`ArgumentParser` version flags ``-v, --version`` are not appropriate for your program.
+
+    >>> import argparse
+    >>> parser = argparse.ArgumentParser(prog='PROG')
+    >>> parser.add_argument('-V', action='version', version='%(prog)s 2.0')
+    >>> parser.parse_args(['-V'])
+    PROG 2.0
+
 You can also specify an arbitrary action by passing an object that implements the Action API.  The easiest way to do this is to extend ``argparse.Action``, supplying an appropriate ``__call__`` method.  The ``__call__`` method accepts four parameters:
 
 * ``parser`` - The ArgumentParser object which contains this action.

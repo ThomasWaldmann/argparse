@@ -3,7 +3,7 @@ ArgumentParser objects
 
 .. class:: ArgumentParser([description], [epilog], [prog], [usage], [version], [add_help], [argument_default], [parents], [prefix_chars], [conflict_handler], [formatter_class])
 
-   Create a new :class:ArgumentParser object. Each parameter has its own more detailed description below, but in short they are:
+   Create a new :class:`ArgumentParser` object. Each parameter has its own more detailed description below, but in short they are:
    
    * description_ - Text to display before the argument help.
    * epilog_ - Text to display after the argument help.
@@ -74,7 +74,7 @@ Programs which want to display the program version at the command line can suppl
   >>> parser.parse_args(['-v'])
   PROG 3.5
 
-Note you can use the ``%(prog)s`` format specifier to insert the program name into the version string.
+Note you can use the ``%(prog)s`` format specifier to insert the program name into the version string. For greater customization, see the documentation on the ``'version'`` action available for :meth:`add_argument`.
 
 
 add_help
