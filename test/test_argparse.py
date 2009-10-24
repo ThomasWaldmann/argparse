@@ -4031,6 +4031,118 @@ class TestParseKnownArgs(TestCase):
         self.failUnlessEqual(NS(v=3, spam=True, badger="B"), args)
         self.failUnlessEqual(["C", "--foo", "4"], extras)
 
+# ======================
+# add_function tests
+# ======================
+
+class TestAddFunction(TestCase):
+
+    def test_defaults(self):
+
+        def func(foo, bar, c=2, do_it=False, e=[42]):
+            return (foo, bar, c, do_it, e)
+
+        parser = argparse.ArgumentParser()
+        parser.add_function_arguments(func)
+
+        # There was once a bug that occurred when the positional arguments
+        # came first and not last. So lets make sure it works both ways.
+        for args_str in ['funky qqq ext -d -c 33', '-d -c 33 funky qqq ext']:
+            args, extras = parser.parse_known_args(args_str.split())
+            expected_results = ('funky', 'qqq', 33, True, [42])
+            results = args.func()
+            self.failUnlessEqual(expected_results, results)
+
+            # del args.func because failUnlessEqual can't compare the function.
+            # It's not really func, it's just a stub function that calls func.
+            del args.func
+            expected = NS(foo='funky', bar='qqq', c=33, do_it=True, e=[42])
+            self.failUnlessEqual(expected, args)
+            self.failUnlessEqual(['ext'], extras)
+
+    def test_runner(self):
+
+        def func(swimming, bacon='42'):
+            return swimming, bacon
+
+        def proc(flying, spaghetti='...'):
+            return flying, spaghetti
+
+        result = argparse.run(func, args="-b 13 bloop".split())
+        self.failUnlessEqual(('bloop', '13'), result)
+
+        result = argparse.run(proc, func, args="func -b 13 bloop".split())
+        self.failUnlessEqual(('bloop', '13'), result)
+
+        result = argparse.run(func, proc, args="proc monster".split())
+        self.failUnlessEqual(('monster', '...'), result)
+
+    # only compile and test annotations if this is Python >= 3
+    if sys.version_info[0] >= 3:
+
+        def test_annotations(self):
+            func_source = textwrap.dedent('''
+                def func(foo:bool, bar:int, spam:int=101):
+                    return foo, bar
+                ''')
+            exec_dict = {}
+            exec(func_source, exec_dict)
+            func = exec_dict['func']
+
+            parser = argparse.ArgumentParser()
+            parser.add_function_arguments(func)
+
+            args = parser.parse_args(['42'])
+            del args.func
+            self.failUnlessEqual(NS(foo=False, bar=42, spam=101), args)
+
+            args = parser.parse_args('--foo 27'.split())
+            del args.func
+            self.failUnlessEqual(NS(foo=True, bar=27, spam=101), args)
+
+            args = parser.parse_args('27 -f'.split())
+            del args.func
+            self.failUnlessEqual(NS(foo=True, bar=27, spam=101), args)
+
+            args = parser.parse_args('27 -f -s 321'.split())
+            del args.func
+            self.failUnlessEqual(NS(foo=True, bar=27, spam=321), args)
+
+    def test_help(self):
+
+        def funky(sparrow, arrow, fox):
+            '''
+            funky puts the func into function.
+            sparrow - A bird with a certain air speed velocity
+            fox - a small animal
+            '''
+            pass
+
+        old_stderr = sys.stderr
+        sys.stderr = StringIO()
+        try:
+            try:
+                argparse.run(funky, args=['-h'])
+            except SystemExit:
+                expected = textwrap.dedent('''\
+                usage: test_argparse.py [-h] sparrow arrow fox
+
+                funky puts the func into function.
+
+                positional arguments:
+                  sparrow     A bird with a certain air speed velocity
+                  arrow
+                  fox         a small animal
+
+                optional arguments:
+                  -h, --help  show this help message and exit
+                ''')
+                message = sys.stderr.getvalue()
+                self.failUnlessEqual(expected, message)
+        finally:
+            sys.stderr = old_stderr
+
+
 # ============================
 # from argparse import * tests
 # ============================

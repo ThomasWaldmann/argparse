@@ -94,6 +94,7 @@ import os as _os
 import re as _re
 import sys as _sys
 import textwrap as _textwrap
+import inspect as _inspect
 
 from gettext import gettext as _
 
@@ -1111,6 +1112,31 @@ class _SubParsersAction(Action):
         parser.parse_args(arg_strings, namespace)
 
 
+class _PrepareFunctionAction(Action):
+
+    def __init__(self, option_strings, dest, function, required=True):
+        super(_PrepareFunctionAction, self).__init__(
+            option_strings=option_strings,
+            dest=dest,
+            nargs=0,
+            required=required,
+            help=SUPPRESS)
+        self.function = function
+
+    def __call__(self, parser, namespace, values, option_string=None):
+
+        def run_parsed_func():
+            # _signature_from_namespace happens here only after all
+            # parsing is completed - when the user calls dest().
+            # Otherwise, the action might be called before parse_args
+            # finished and the namespace isn't correct yet.
+            args, kwargs = _signature_from_namespace(self.function, namespace)
+            return self.function(*args, **kwargs)
+
+        # pin the function to the namespace at dest.
+        setattr(namespace, self.dest, run_parsed_func)
+
+
 # ==============
 # Type classes
 # ==============
@@ -1670,6 +1696,89 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
         return [action
                 for action in self._actions
                 if not action.option_strings]
+
+    # =====================================
+    # Auto generating options from function introspection
+    # =====================================
+    def add_function_arguments(self, function, dest=None):
+        (arg_names_list, varargs, varkw, defaults,
+         kwonlyargs, kwonlydefaults, annotations) = _getfunctionspec(function)
+        description, help_dict = _parse_docstring(function)
+
+        if defaults is None:
+            defaults = ()
+
+        if dest is None:
+            dest = function.__name__
+
+        defaulted_count = len(defaults)
+        not_defaulted_count = len(arg_names_list) - defaulted_count
+        not_defaulted = arg_names_list[:not_defaulted_count]
+        defaulted_args = arg_names_list[not_defaulted_count:]
+        defaults_dict = dict(zip(defaulted_args, defaults))
+
+        options = _set()
+
+        for arg_name in arg_names_list:
+            arg_kwopts = {}
+            arg_opts = []
+
+            arg_help = help_dict.get(arg_name, '')
+            arg_kwopts['help'] = arg_help
+
+            if arg_name in annotations:
+                cast = annotations[arg_name]
+                if cast is bool:
+                    arg_kwopts['action'] = 'store_true'
+                    options.add(arg_name)
+                else:
+                    arg_kwopts['type'] = cast
+
+            if arg_name in defaults_dict:
+                default_value = defaults_dict[arg_name]
+                arg_kwopts['default'] = default_value
+
+                if arg_name not in annotations:
+                    # if annotations exist, they take precedence over assuming
+                    # typing with the default values.
+
+                    # This parameter isn't annotated a type so we'll assume
+                    # the type is the same as the default argument and that
+                    # the ctor can parse a string.
+                    cast = type(default_value)
+
+                    # handle special cases:
+                    if cast == bool:
+                        # if the default is True, then the action is
+                        # store_false and vice versa.
+                        to_store = str(not default_value).lower()
+                        arg_kwopts['action'] = 'store_' + to_store
+                        options.add(arg_name)
+                    else:
+                        arg_kwopts['type'] = cast
+
+                options.add(arg_name)
+
+            if arg_name in options:
+                # options are whatever was given a default and type bools
+                arg_opts.append('-' + arg_name[0])
+                arg_opts.append('--' + arg_name)
+            else:
+                arg_opts.append(arg_name)
+
+            self.add_argument(*arg_opts, **arg_kwopts)
+
+        # handle variable length argument list like - def func(eggs, *varargs)
+        if varargs is not None:
+            self.add_argument(varargs, nargs='*')
+
+        # add an action that uses the results of the actions above to provide
+        # the arguments to the function
+        self.add_argument(dest, function=function,
+                          action=_PrepareFunctionAction)
+
+        # return the original function to allow method use as a decorator
+        return function
 
     # =====================================
     # Command line argument parsing methods
@@ -2296,3 +2405,122 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
         """
         self.print_usage(_sys.stderr)
         self.exit(2, _('%s: error: %s\n') % (self.prog, message))
+
+
+def _getfunctionspec(function):
+    if hasattr(function, '__annotations__'): # python 3 only
+        (arg_names, varargs, varkw, defaults, kwonlyargs, kwonlydefaults,
+         annotations) = _inspect.getfullargspec(function)
+    else:
+        arg_names, varargs, varkw, defaults = _inspect.getargspec(function)
+        kwonlyargs, kwonlydefaults, annotations = [], {}, {}
+    return (arg_names, varargs, varkw, defaults,
+            kwonlyargs, kwonlydefaults, annotations)
+
+
+def _signature_from_namespace(function, namespace):
+    "Translate argument Namespace to args and kwargs"
+    (arg_names_list, varargs, varkw, defaults,
+     kwonlyargs, kwonlydefaults, annotations) = _getfunctionspec(function)
+
+    # remove *, variable list of arguments
+    kwargs = vars(namespace).copy()
+    if varargs is None:
+        args = []
+    else:
+        args = kwargs.pop(varargs)
+
+    # remove names in namespace that aren't parameters
+    unrelated_names = _set(kwargs.keys()) - _set(arg_names_list)
+    for name in unrelated_names:
+        del kwargs[name]
+
+    return args, kwargs
+
+
+def _parse_docstring(function):
+    """Parses a function's docstring for a description of the function and for
+    help on the individual parameters.
+
+    The parsing algorithm currently looks for lines that start with a parameter
+    name immediately followed by any amount of whitespace, hyphens or colons.
+    The rest of the line following the colon/hyphen/whitespace is the help.
+
+    Keyword Arguments:
+        function - the function whose docstring is parsed.
+
+    Returns a (description, help_dict) tuple:
+        description - all text before the first documented parameter
+        help_dict - a dictionary mapping parameter names to their help strings
+    """
+    (arg_names_list, varargs, varkw, defaults,
+     kwonlyargs, kwonlydefaults, annotations) = _getfunctionspec(function)
+
+    # get the docstring and split it into lines
+    docs = function.__doc__
+    if docs is None:
+        docs = ''
+    lines = docs.splitlines()
+
+    # find parameter documentation:
+    names = '|'.join(arg_names_list)
+    var_doc_re = _re.compile(r'(%s)[ \t-:]*(.*)' % names)
+    help_dict = {}
+
+    # collect parameter help strings and identify the first line where
+    # one appeared
+    first_line = len(docs)
+    for i, line in enumerate(lines):
+        stripped = line.strip()
+        match = var_doc_re.match(stripped)
+        if match is not None:
+            if i < first_line:
+                first_line = i
+            name, help = match.groups()
+            help_dict[name] = help.strip()
+
+    # the description is all text preceding the first parameter help line
+    if first_line < len(docs):
+        description = '\n'.join(lines[:first_line]).strip()
+    else:
+        description = None
+
+    return description, help_dict
+
+
+def run(*functions, **kwargs):
+    """Create an ArgumentParser based on function parameters, parse arguments
+    for the function(s) from the command line, and call a function.
+
+    Arguments:
+        functions -- A list of functions whose parameters define the interface.
+            If more than one function is provided, a sub-command will be
+            generated for each function, named by the function name.
+        args -- The command line arguments, defaulting to sys.argv[1:]
+    """
+    # check parameters
+    args = kwargs.pop('args', _sys.argv[1:])
+    if kwargs:
+        raise TypeError("unexpected keyword arguments: %s" % list(kwargs))
+    if not functions:
+        raise TypeError("expected at least one function")
+
+    # create a parser for a single function
+    if len(functions) == 1:
+        func, = functions
+        description, _ = _parse_docstring(func)
+        parser = ArgumentParser(description=description)
+        parser.add_function_arguments(func, dest='__run__')
+
+    # create a parser for multiple functions
+    else:
+        parser = ArgumentParser()
+        subparsers = parser.add_subparsers()
+        for func in functions:
+            name = func.__name__
+            desc, _ = _parse_docstring(func)
+            func_parser = subparsers.add_parser(name, description=desc)
+            func_parser.add_function_arguments(func, dest='__run__')
+
+    # parse the args and call the function
+    return parser.parse_args(args).__run__()
