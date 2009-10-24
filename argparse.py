@@ -1249,6 +1249,8 @@ class _ActionsContainer(object):
         # argument
         chars = self.prefix_chars
         if not args or len(args) == 1 and args[0][0] not in chars:
+            if args and 'dest' in kwargs:
+                raise ValueError('dest supplied twice for positional argument')
             kwargs = self._get_positional_kwargs(*args, **kwargs)
 
         # otherwise, we're adding an optional argument

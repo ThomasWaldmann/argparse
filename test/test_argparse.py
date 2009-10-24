@@ -3624,6 +3624,17 @@ class TestInvalidArgumentConstructors(TestCase):
             msg = 'expected %r, found %r' % (expected, e)
             self.failUnless(expected in str(e), msg)
 
+    def test_multiple_dest(self):
+        parser = argparse.ArgumentParser()
+        parser.add_argument(dest='foo')
+        try:
+            parser.add_argument('bar', dest='baz')
+        except ValueError:
+            e = sys.exc_info()[1]
+            expected = 'dest supplied twice for positional argument'
+            msg = 'expected %r, found %r' % (expected, e)
+            self.failUnless(expected in str(e), msg)
+
     def test_no_argument_actions(self):
         for action in ['store_const', 'store_true', 'store_false',
                        'append_const', 'count']:
