@@ -3985,6 +3985,28 @@ class TestArgumentError(TestCase):
         error = argparse.ArgumentError(None, msg)
         self.failUnlessEqual(str(error), msg)
 
+# =======================
+# ArgumentTypeError tests
+# =======================
+
+class TestArgumentError(TestCase):
+
+    def test_argument_type_error(self):
+
+        def spam(string):
+            raise argparse.ArgumentTypeError('spam!')
+
+        parser = ErrorRaisingArgumentParser(prog='PROG', add_help=False)
+        parser.add_argument('x', type=spam)
+        try:
+            parser.parse_args(['XXX'])
+        except ArgumentParserError:
+            expected = 'usage: PROG x\nPROG: error: argument x: spam!\n'
+            msg = str(sys.exc_info()[1])
+            self.failUnlessEqual(expected, msg)
+        else:
+            self.fail()
+
 # ======================
 # parse_known_args tests
 # ======================

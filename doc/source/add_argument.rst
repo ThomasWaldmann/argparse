@@ -244,7 +244,8 @@ If you need to do some special type-checking or type-conversions, you can provid
   ...     value = int(string)
   ...     sqrt = math.sqrt(value)
   ...     if sqrt != int(sqrt):
-  ...     raise TypeError()
+  ...         msg = "%r is not a perfect square" % string
+  ...         raise argparse.ArgumentTypeError(msg)
   ...     return value
   ...    
   >>> parser = argparse.ArgumentParser(prog='PROG')
@@ -253,7 +254,7 @@ If you need to do some special type-checking or type-conversions, you can provid
   Namespace(foo=9)
   >>> parser.parse_args('7'.split())
   usage: PROG [-h] foo
-  PROG: error: argument foo: invalid perfect_square value: '7'
+  PROG: error: argument foo: '7' is not a perfect square
 
 Note that if your type-checking function is just checking for a particular set of values, it may be more convenient to use the choices_ keyword argument::
 

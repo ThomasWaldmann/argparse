@@ -722,6 +722,12 @@ class ArgumentError(Exception):
         return format % dict(message=self.message,
                              argument_name=self.argument_name)
 
+
+class ArgumentTypeError(Exception):
+    """An error from trying to convert a command line string to a type."""
+    pass
+
+
 # ==============
 # Action classes
 # ==============
@@ -2191,7 +2197,13 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
         try:
             result = type_func(arg_string)
 
-        # TypeErrors or ValueErrors indicate errors
+        # ArgumentTypeErrors indicate errors
+        except ArgumentTypeError:
+            name = getattr(action.type, '__name__', repr(action.type))
+            msg = str(_sys.exc_info()[1])
+            raise ArgumentError(action, msg)
+
+        # TypeErrors or ValueErrors also indicate errors
         except (TypeError, ValueError):
             name = getattr(action.type, '__name__', repr(action.type))
             msg = _('invalid %s value: %r')

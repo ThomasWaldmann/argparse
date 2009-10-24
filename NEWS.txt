@@ -2,6 +2,7 @@ What's New in argparse 1.1
 ==========================
 
 - Issue #22: Support more customization of version arguments.
+- Issue #34: Allow better custom type error messages using ArgumentTypeError.
 - Issue #36: Get "from argparse import *" working.
 - Issue #37: Stop treating two character alphanumeric flags as numbers.
 - Issue #38: Better error messages when 'dest' occurs twice for positional arguments.

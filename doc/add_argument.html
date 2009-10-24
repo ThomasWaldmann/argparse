@@ -295,7 +295,8 @@
 <span class="gp">... </span>    <span class="n">value</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
 <span class="gp">... </span>    <span class="n">sqrt</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 <span class="gp">... </span>    <span class="k">if</span> <span class="n">sqrt</span> <span class="o">!=</span> <span class="nb">int</span><span class="p">(</span><span class="n">sqrt</span><span class="p">):</span>
-<span class="gp">... </span>    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">()</span>
+<span class="gp">... </span>        <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%r</span><span class="s"> is not a perfect square&quot;</span> <span class="o">%</span> <span class="n">string</span>
+<span class="gp">... </span>        <span class="k">raise</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentTypeError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 <span class="gp">... </span>    <span class="k">return</span> <span class="n">value</span>
 <span class="gp">...</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">prog</span><span class="o">=</span><span class="s">&#39;PROG&#39;</span><span class="p">)</span>
@@ -304,7 +305,7 @@
 <span class="go">Namespace(foo=9)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="s">&#39;7&#39;</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
 <span class="go">usage: PROG [-h] foo</span>
-<span class="go">PROG: error: argument foo: invalid perfect_square value: &#39;7&#39;</span>
+<span class="go">PROG: error: argument foo: &#39;7&#39; is not a perfect square</span>
 </pre></div>
 </div>
 <p>Note that if your type-checking function is just checking for a particular set of values, it may be more convenient to use the <a class="reference internal" href="#choices">choices</a> keyword argument:</p>
