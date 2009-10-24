@@ -3613,8 +3613,16 @@ class TestInvalidArgumentConstructors(TestCase):
         self.assertValueError('---')
 
     def test_invalid_action(self):
-        self.assertTypeError('-x', action='foo')
-        self.assertTypeError('foo', action='baz')
+        self.assertValueError('-x', action='foo')
+        self.assertValueError('foo', action='baz')
+        parser = argparse.ArgumentParser()
+        try:
+            parser.add_argument("--foo", action="store-true")
+        except ValueError:
+            e = sys.exc_info()[1]
+            expected = 'unknown action'
+            msg = 'expected %r, found %r' % (expected, e)
+            self.failUnless(expected in str(e), msg)
 
     def test_no_argument_actions(self):
         for action in ['store_const', 'store_true', 'store_false',

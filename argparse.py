@@ -118,6 +118,10 @@ except NameError:
             result.reverse()
         return result
 
+
+def _callable(obj):
+    return hasattr(obj, '__call__') or hasattr(obj, '__bases__')
+
 # silence Python 2.6 buggy warnings about Exception.message
 if _sys.version_info[:2] == (2, 6):
     import warnings
@@ -1261,6 +1265,8 @@ class _ActionsContainer(object):
 
         # create the action object, and add it to the parser
         action_class = self._pop_action_class(kwargs)
+        if not _callable(action_class):
+            raise ValueError('unknown action "%s"' % action_class)
         action = action_class(**kwargs)
         return self._add_action(action)
 
@@ -2166,10 +2172,9 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
 
     def _get_value(self, action, arg_string):
         type_func = self._registry_get('type', action.type, action.type)
-        if not hasattr(type_func, '__call__'):
-            if not hasattr(type_func, '__bases__'): # classic classes
-                msg = _('%r is not callable')
-                raise ArgumentError(action, msg % type_func)
+        if not _callable(type_func):
+            msg = _('%r is not callable')
+            raise ArgumentError(action, msg % type_func)
 
         # convert the value to the appropriate type
         try:
