@@ -159,8 +159,7 @@ optional arguments:
 <span class="go">Namespace(bar=&#39;Y&#39;, f=&#39;X&#39;)</span>
 </pre></div>
 </div>
-<p>The <tt class="docutils literal"><span class="pre">prefix_chars=</span></tt> argument defaults to <tt class="docutils literal"><span class="pre">'-'</span></tt>. Supplying a set of characters that does not include <tt class="docutils literal"><span class="pre">'-'</span></tt> will cause <tt class="docutils literal"><span class="pre">-f/--foo</span></tt> options to be disallowed.
-Note that most parent parsers will specify <tt class="xref docutils literal"><span class="pre">add_help()</span></tt> <tt class="docutils literal"><span class="pre">=False</span></tt>. Otherwise, the ArgumentParser will see two <tt class="docutils literal"><span class="pre">-h/--help</span></tt> options (one in the parent and one in the child) and raise an error.</p>
+<p>The <tt class="docutils literal"><span class="pre">prefix_chars=</span></tt> argument defaults to <tt class="docutils literal"><span class="pre">'-'</span></tt>. Supplying a set of characters that does not include <tt class="docutils literal"><span class="pre">'-'</span></tt> will cause <tt class="docutils literal"><span class="pre">-f/--foo</span></tt> options to be disallowed.</p>
 </div>
 <div class="section" id="fromfile-prefix-chars">
 <h2>fromfile_prefix_chars<a class="headerlink" href="#fromfile-prefix-chars" title="Permalink to this headline">¶</a></h2>
@@ -207,6 +206,7 @@ So in the example above, the expression <tt class="docutils literal"><span class
 <span class="go">Namespace(bar=&#39;YYY&#39;, parent=None)</span>
 </pre></div>
 </div>
+<p>Note that most parent parsers will specify <tt class="docutils literal"><span class="pre">add_help=False</span></tt>. Otherwise, the ArgumentParser will see two <tt class="docutils literal"><span class="pre">-h/--help</span></tt> options (one in the parent and one in the child) and raise an error.</p>
 </div>
 <div class="section" id="formatter-class">
 <h2>formatter_class<a class="headerlink" href="#formatter-class" title="Permalink to this headline">¶</a></h2>

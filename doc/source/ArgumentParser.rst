@@ -119,7 +119,6 @@ Most command-line options will use ``'-'`` as the prefix, e.g. ``-f/--foo``. Par
   Namespace(bar='Y', f='X')
 
 The ``prefix_chars=`` argument defaults to ``'-'``. Supplying a set of characters that does not include ``'-'`` will cause ``-f/--foo`` options to be disallowed.
-Note that most parent parsers will specify :meth:`add_help` ``=False``. Otherwise, the ArgumentParser will see two ``-h/--help`` options (one in the parent and one in the child) and raise an error.
 
 
 fromfile_prefix_chars
@@ -171,6 +170,8 @@ Sometimes, several parsers share a common set of arguments. Rather than repeatin
   >>> bar_parser.add_argument('--bar')
   >>> bar_parser.parse_args(['--bar', 'YYY'])
   Namespace(bar='YYY', parent=None)
+
+Note that most parent parsers will specify ``add_help=False``. Otherwise, the ArgumentParser will see two ``-h/--help`` options (one in the parent and one in the child) and raise an error.
 
 
 formatter_class
