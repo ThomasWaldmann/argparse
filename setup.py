@@ -24,7 +24,7 @@ def read_description():
     readme_file = open(os.path.join(os.path.dirname(__file__), 'README.txt'))
     readme_text = readme_file.read()
     readme_file.close()
-    main_desc_regexp = r'^argparse\s*[\d.]*\s*\n=======+\s*\n(.*)Requirements '
+    main_desc_regexp = r'^argparse\s*[\w.]*\s*\n=======+\s*\n(.*)Requirements '
     main_desc, = re.findall(main_desc_regexp, readme_text, re.DOTALL)
     avail_desc_regexp = r'Availability & Documentation\s*\n-----+\s*\n(.*)'
     avail_desc, = re.findall(avail_desc_regexp, readme_text, re.DOTALL)
