@@ -4077,10 +4077,22 @@ class TestAddFunction(TestCase):
         result = argparse.run(func, proc, args="proc monster".split())
         self.failUnlessEqual(('monster', '...'), result)
 
+    def test_runner_on_bound_functions(self):
+
+        class Bacon:
+            def proc(self, flying, spaghetti='...'):
+                return flying, spaghetti
+        
+        meat = Bacon()
+        result = argparse.run(meat.proc, args="monster".split())
+        self.failUnlessEqual(('monster', '...'), result)
+
     # only compile and test annotations if this is Python >= 3
     if sys.version_info[0] >= 3:
 
         def test_annotations(self):
+            # the function with annotations is a string to avoid syntax errors
+            # in python 2.x
             func_source = textwrap.dedent('''
                 def func(foo:bool, bar:int, spam:int=101):
                     return foo, bar

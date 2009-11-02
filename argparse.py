@@ -95,6 +95,7 @@ import re as _re
 import sys as _sys
 import textwrap as _textwrap
 import inspect as _inspect
+import types as _types
 
 from gettext import gettext as _
 
@@ -2414,6 +2415,14 @@ def _getfunctionspec(function):
     else:
         arg_names, varargs, varkw, defaults = _inspect.getargspec(function)
         kwonlyargs, kwonlydefaults, annotations = [], {}, {}
+
+    # A fix for class-methods and instance-methods is to remove the first
+    # argument name (which is self or cls).
+    # In case of (*args, **kwargs) we don't intervene.
+    if isinstance(function, _types.MethodType):
+        if len(arg_names) > 0:
+            arg_names.pop(0)
+
     return (arg_names, varargs, varkw, defaults,
             kwonlyargs, kwonlydefaults, annotations)
 
