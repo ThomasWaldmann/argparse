@@ -137,7 +137,8 @@ SUPPRESS = '==SUPPRESS=='
 OPTIONAL = '?'
 ZERO_OR_MORE = '*'
 ONE_OR_MORE = '+'
-PARSER = '==PARSER=='
+PARSER = 'A...'
+REMAINDER = '...'
 
 # =============================
 # Utility functions and classes
@@ -606,7 +607,9 @@ class HelpFormatter(object):
             result = '[%s [%s ...]]' % get_metavar(2)
         elif action.nargs == ONE_OR_MORE:
             result = '%s [%s ...]' % get_metavar(2)
-        elif action.nargs is PARSER:
+        elif action.nargs == REMAINDER:
+            result = '...'
+        elif action.nargs == PARSER:
             result = '%s ...' % get_metavar(1)
         else:
             formats = ['%s' for _ in range(action.nargs)]
@@ -1254,6 +1257,7 @@ class _ActionsContainer(object):
             if action.dest == dest and action.default is not None:
                 return action.default
         return self._defaults.get(dest, None)
+
 
     # =======================
     # Adding argument actions
@@ -2129,8 +2133,12 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
         elif nargs == ONE_OR_MORE:
             nargs_pattern = '(-*A[A-]*)'
 
+        # allow any number of options or arguments
+        elif nargs == REMAINDER:
+            nargs_pattern = '([-AO]*)'
+
         # allow one argument followed by any number of options or arguments
-        elif nargs is PARSER:
+        elif nargs == PARSER:
             nargs_pattern = '(-*A[-AO]*)'
 
         # all others should be integers
@@ -2150,7 +2158,7 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
     # ========================
     def _get_values(self, action, arg_strings):
         # for everything but PARSER args, strip out '--'
-        if action.nargs is not PARSER:
+        if action.nargs not in [PARSER, REMAINDER]:
             arg_strings = [s for s in arg_strings if s != '--']
 
         # optional argument produces a default when not present
@@ -2179,8 +2187,12 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
             value = self._get_value(action, arg_string)
             self._check_value(action, value)
 
+        # REMAINDER arguments convert all values, checking none
+        elif action.nargs == REMAINDER:
+            value = [self._get_value(action, v) for v in arg_strings]
+
         # PARSER arguments convert all values, but check only the first
-        elif action.nargs is PARSER:
+        elif action.nargs == PARSER:
             value = [self._get_value(action, v) for v in arg_strings]
             self._check_value(action, value[0])
 

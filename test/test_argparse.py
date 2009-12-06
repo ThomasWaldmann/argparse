@@ -1173,6 +1173,19 @@ class TestNargsZeroOrMore(ParserTestCase):
     ]
 
 
+class TestNargsRemainder(ParserTestCase):
+    """Tests specifying a positional with nargs=REMAINDER"""
+
+    argument_signatures = [Sig('x'), Sig('y', nargs='...'), Sig('-z')]
+    failures = ['', '-z', '-z Z']
+    successes = [
+        ('X', NS(x='X', y=[], z=None)),
+        ('-z Z X', NS(x='X', y=[], z='Z')),
+        ('X A B -z Z', NS(x='X', y=['A', 'B', '-z', 'Z'], z=None)),
+        ('X Y --foo', NS(x='X', y=['Y', '--foo'], z=None)),
+    ]
+
+
 class TestOptionLike(ParserTestCase):
     """Tests options that may or may not be arguments"""
 
