@@ -117,6 +117,18 @@ Instead, it returns a two item tuple containing the populated namespace and the 
 <p>Parser-level defaults can be particularly useful when you&#8217;re working with multiple parsers.  See the <a title="add_subparsers" class="reference internal" href="#add_subparsers"><tt class="xref docutils literal"><span class="pre">add_subparsers()</span></tt></a> method for an example of this type.</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="get_default">
+<tt class="descname">get_default</tt><big>(</big><em>dest</em><big>)</big><a class="headerlink" href="#get_default" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the default value for a namespace attribute, as set by either <a title="add_argument" class="reference external" href="add_argument.html#add_argument"><tt class="xref docutils literal"><span class="pre">add_argument()</span></tt></a> or by <a title="set_defaults" class="reference internal" href="#set_defaults"><tt class="xref docutils literal"><span class="pre">set_defaults()</span></tt></a>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--foo&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s">&#39;badger&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">get_default</span><span class="p">(</span><span class="s">&#39;foo&#39;</span><span class="p">)</span>
+<span class="go">&#39;badger&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
 </div>
 <div class="section" id="sub-commands">
 <h2>Sub-commands<a class="headerlink" href="#sub-commands" title="Permalink to this headline">¶</a></h2>

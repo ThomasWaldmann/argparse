@@ -67,6 +67,14 @@ Parser defaults
    
    Parser-level defaults can be particularly useful when you're working with multiple parsers.  See the :meth:`add_subparsers` method for an example of this type.
 
+.. method:: get_default(dest)
+
+   Get the default value for a namespace attribute, as set by either :meth:`add_argument` or by :meth:`set_defaults`::
+   
+     >>> parser = argparse.ArgumentParser()
+     >>> parser.add_argument('--foo', default='badger')
+     >>> parser.get_default('foo')
+     'badger'
 
 Sub-commands
 ------------

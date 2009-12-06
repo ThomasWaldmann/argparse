@@ -1238,7 +1238,7 @@ class _ActionsContainer(object):
         return self._registries[registry_name].get(value, default)
 
     # ==================================
-    # Namespace default settings methods
+    # Namespace default accessor methods
     # ==================================
     def set_defaults(self, **kwargs):
         self._defaults.update(kwargs)
@@ -1248,6 +1248,12 @@ class _ActionsContainer(object):
         for action in self._actions:
             if action.dest in kwargs:
                 action.default = kwargs[action.dest]
+
+    def get_default(self, dest):
+        for action in self._actions:
+            if action.dest == dest and action.default is not None:
+                return action.default
+        return self._defaults.get(dest, None)
 
     # =======================
     # Adding argument actions

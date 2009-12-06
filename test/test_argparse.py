@@ -2466,6 +2466,29 @@ class TestSetDefaults(TestCase):
         self.assertEqual(NS(w='WW', x='X', y='YY', z='Z'),
                          parser.parse_args([]))
 
+# =================
+# Get default tests
+# =================
+
+class TestGetDefault(TestCase):
+
+    def test_get_default(self):
+        parser = ErrorRaisingArgumentParser()
+        self.assertEqual(None, parser.get_default("foo"))
+        self.assertEqual(None, parser.get_default("bar"))
+
+        parser.add_argument("--foo")
+        self.assertEqual(None, parser.get_default("foo"))
+        self.assertEqual(None, parser.get_default("bar"))
+
+        parser.add_argument("--bar", type=int, default=42)
+        self.assertEqual(None, parser.get_default("foo"))
+        self.assertEqual(42, parser.get_default("bar"))
+
+        parser.set_defaults(foo="badger")
+        self.assertEqual("badger", parser.get_default("foo"))
+        self.assertEqual(42, parser.get_default("bar"))
+
 # =====================
 # Help formatting tests
 # =====================
