@@ -401,6 +401,25 @@ class TestOptionalsDoubleDashPartialMatch(ParserTestCase):
     ]
 
 
+class TestOptionalsDoubleDashPrefixMatch(ParserTestCase):
+    """Tests when one double-dash option string is a prefix of another"""
+
+    argument_signatures = [
+        Sig('--badger', action='store_true'),
+        Sig('--ba'),
+    ]
+    failures = ['--bar', '--b', '--ba', '--b=2', '--badge 5']
+    successes = [
+        ('', NS(badger=False, ba=None)),
+        ('--ba X', NS(badger=False, ba='X')),
+        ('--ba=X', NS(badger=False, ba='X')),
+        ('--bad', NS(badger=True, ba=None)),
+        ('--badg', NS(badger=True, ba=None)),
+        ('--badge', NS(badger=True, ba=None)),
+        ('--badger', NS(badger=True, ba=None)),
+    ]
+
+
 class TestOptionalsSingleDoubleDash(ParserTestCase):
     """Test an Optional with single- and double-dash option strings"""
 

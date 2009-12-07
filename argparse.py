@@ -2036,6 +2036,13 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
             action = self._option_string_actions[arg_string]
             return action, arg_string, None
 
+        # if the option string before the "=" is present, return the action
+        if '=' in arg_string:
+            option_string, explicit_arg = arg_string.split('=', 1)
+            if option_string in self._option_string_actions:
+                action = self._option_string_actions[option_string]
+                return action, option_string, explicit_arg
+
         # search through all possible prefixes of the option string
         # and all actions in the parser for possible interpretations
         option_tuples = self._get_option_tuples(arg_string)
