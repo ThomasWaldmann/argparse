@@ -330,6 +330,24 @@ Instead, it returns a two item tuple containing the populated namespace and the 
 </dd></dl>
 
 </div>
+<div class="section" id="customizing-file-parsing">
+<h2>Customizing file parsing<a class="headerlink" href="#customizing-file-parsing" title="Permalink to this headline">¶</a></h2>
+<dl class="method">
+<dt id="convert_arg_line_to_args">
+<tt class="descname">convert_arg_line_to_args</tt><big>(</big><em>arg_line</em><big>)</big><a class="headerlink" href="#convert_arg_line_to_args" title="Permalink to this definition">¶</a></dt>
+<dd><p>Arguments that are read from a file (see the <tt class="docutils literal"><span class="pre">fromfile_prefix_chars</span></tt> keyword argument to the <a title="ArgumentParser" class="reference external" href="ArgumentParser.html#ArgumentParser"><tt class="xref docutils literal"><span class="pre">ArgumentParser</span></tt></a> constructor) are read one argument per line.  If you need fancier parsing, then you can subclass the <a title="ArgumentParser" class="reference external" href="ArgumentParser.html#ArgumentParser"><tt class="xref docutils literal"><span class="pre">ArgumentParser</span></tt></a> and override the <a title="convert_arg_line_to_args" class="reference internal" href="#convert_arg_line_to_args"><tt class="xref docutils literal"><span class="pre">convert_arg_line_to_args()</span></tt></a> method.</p>
+<p>This method takes a single argument <tt class="docutils literal"><span class="pre">arg_line</span></tt> which is a string read from the argument file.  It returns a list of arguments parsed from this string.  The method is called once per line read from the argument file, in order.</p>
+<p>A useful override of this method is one that treats each space-separated word as an argument:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">convert_arg_line_to_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg_line</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">arg_line</span><span class="o">.</span><span class="n">split</span><span class="p">():</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">arg</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+            <span class="k">continue</span>
+        <span class="k">yield</span> <span class="n">arg</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
 </div>
 
 
@@ -347,6 +365,7 @@ Instead, it returns a two item tuple containing the populated namespace and the 
 <li><a class="reference external" href="#sub-commands">Sub-commands</a></li>
 <li><a class="reference external" href="#argument-groups">Argument groups</a></li>
 <li><a class="reference external" href="#mutual-exclusion">Mutual exclusion</a></li>
+<li><a class="reference external" href="#customizing-file-parsing">Customizing file parsing</a></li>
 </ul>
 </li>
 </ul>

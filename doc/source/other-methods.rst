@@ -277,3 +277,19 @@ Mutual exclusion
    Note that currently mutually exclusive argument groups do not support the ``title`` and ``description`` arguments of :meth:`add_argument_group`. This may change in the future however, so you are *strongly* recommended to specify ``required`` as a keyword argument if you use it.
 
 
+Customizing file parsing
+------------------------
+   
+.. method:: convert_arg_line_to_args(arg_line)
+
+   Arguments that are read from a file (see the ``fromfile_prefix_chars`` keyword argument to the :class:`ArgumentParser` constructor) are read one argument per line.  If you need fancier parsing, then you can subclass the :class:`ArgumentParser` and override the :meth:`convert_arg_line_to_args` method.
+
+   This method takes a single argument ``arg_line`` which is a string read from the argument file.  It returns a list of arguments parsed from this string.  The method is called once per line read from the argument file, in order.
+
+   A useful override of this method is one that treats each space-separated word as an argument::
+
+    def convert_arg_line_to_args(self, arg_line):
+        for arg in arg_line.split():
+            if not arg.strip():
+                continue
+            yield arg

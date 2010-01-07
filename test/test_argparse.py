@@ -175,6 +175,8 @@ class ParserTesterMetaclass(type):
         # default parser signature is empty
         if not hasattr(cls, 'parser_signature'):
             cls.parser_signature = Sig()
+        if not hasattr(cls, 'parser_class'):
+            cls.parser_class = ErrorRaisingArgumentParser
 
         # ---------------------------------------
         # functions for adding optional arguments
@@ -238,7 +240,7 @@ class ParserTesterMetaclass(type):
             def _get_parser(self, tester):
                 args = tester.parser_signature.args
                 kwargs = tester.parser_signature.kwargs
-                parser = ErrorRaisingArgumentParser(*args, **kwargs)
+                parser = tester.parser_class(*args, **kwargs)
                 self._add_arguments(parser, tester.argument_signatures)
                 return parser
 
@@ -1322,6 +1324,36 @@ class TestArgumentsFromFile(TempDirMixin, ParserTestCase):
         ('X @hello', NS(a=None, x='X', y=['hello world!'])),
         ('-a B @recursive Y Z', NS(a='A', x='hello world!', y=['Y', 'Z'])),
         ('X @recursive Z -a B', NS(a='B', x='X', y=['hello world!', 'Z'])),
+    ]
+
+
+class TestArgumentsFromFileConverter(TempDirMixin, ParserTestCase):
+    """Test reading arguments from a file"""
+
+    def setUp(self):
+        super(TestArgumentsFromFileConverter, self).setUp()
+        file_texts = [
+            ('hello', 'hello world!\n'),
+        ]
+        for path, text in file_texts:
+            file = open(path, 'w')
+            file.write(text)
+            file.close()
+
+    class FromFileConverterArgumentParser(ErrorRaisingArgumentParser):
+        def convert_arg_line_to_args(self, arg_line):
+            for arg in arg_line.split():
+                if not arg.strip():
+                    continue
+                yield arg
+    parser_class = FromFileConverterArgumentParser
+    parser_signature = Sig(fromfile_prefix_chars='@')
+    argument_signatures = [
+        Sig('y', nargs='+'),
+    ]
+    failures = []
+    successes = [
+        ('@hello X', NS(y=['hello', 'world!', 'X'])),
     ]
 
 

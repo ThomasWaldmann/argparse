@@ -172,7 +172,7 @@ If the <tt class="docutils literal"><span class="pre">fromfile_prefix_chars=</sp
 <span class="go">Namespace(f=&#39;bar&#39;)</span>
 </pre></div>
 </div>
-<p>Arguments read from a file must be one per line (with each whole line being considered a single argument) and are treated as if they were in the same place as the original file referencing argument on the command line.
+<p>Arguments read from a file must by default be one per line (but see also <a title="convert_arg_line_to_args" class="reference external" href="other-methods.html#convert_arg_line_to_args"><tt class="xref docutils literal"><span class="pre">convert_arg_line_to_args()</span></tt></a>) and are treated as if they were in the same place as the original file referencing argument on the command line.
 So in the example above, the expression <tt class="docutils literal"><span class="pre">['-f',</span> <span class="pre">'foo',</span> <span class="pre">'&#64;args.txt']</span></tt> is considered equivalent to the expression <tt class="docutils literal"><span class="pre">['-f',</span> <span class="pre">'foo',</span> <span class="pre">'-f',</span> <span class="pre">'bar']</span></tt>.</p>
 <p>The <tt class="docutils literal"><span class="pre">fromfile_prefix_chars=</span></tt> argument defaults to <tt class="xref docutils literal"><span class="pre">None</span></tt>, meaning that arguments will never be treated as file references.</p>
 </div>

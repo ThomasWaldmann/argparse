@@ -1971,7 +1971,10 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
                 try:
                     args_file = open(arg_string[1:])
                     try:
-                        arg_strings = args_file.read().splitlines()
+                        arg_strings = []
+                        for arg_line in args_file.read().splitlines():
+                            for arg in self.convert_arg_line_to_args(arg_line):
+                                arg_strings.append(arg)
                         arg_strings = self._read_args_from_files(arg_strings)
                         new_arg_strings.extend(arg_strings)
                     finally:
@@ -1982,6 +1985,9 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
 
         # return the modified argument list
         return new_arg_strings
+
+    def convert_arg_line_to_args(self, arg_line):
+        return [arg_line]
 
     def _match_argument(self, action, arg_strings_pattern):
         # match the pattern for this action to the arg strings

@@ -133,11 +133,10 @@ If the ``fromfile_prefix_chars=`` argument is given to the ArgumentParser constr
   >>> parser.parse_args(['-f', 'foo', '@args.txt'])
   Namespace(f='bar')
 
-Arguments read from a file must be one per line (with each whole line being considered a single argument) and are treated as if they were in the same place as the original file referencing argument on the command line.
+Arguments read from a file must by default be one per line (but see also :meth:`convert_arg_line_to_args`) and are treated as if they were in the same place as the original file referencing argument on the command line.
 So in the example above, the expression ``['-f', 'foo', '@args.txt']`` is considered equivalent to the expression ``['-f', 'foo', '-f', 'bar']``.
 
 The ``fromfile_prefix_chars=`` argument defaults to ``None``, meaning that arguments will never be treated as file references.
-
 
 argument_default
 ----------------
