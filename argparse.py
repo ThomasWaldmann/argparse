@@ -1394,12 +1394,6 @@ class _ActionsContainer(object):
         option_strings = []
         long_option_strings = []
         for option_string in args:
-            # error on one-or-fewer-character option strings
-            if len(option_string) < 2:
-                msg = _('invalid option string %r: '
-                        'must be at least two characters long')
-                raise ValueError(msg % option_string)
-
             # error on strings that don't start with an appropriate prefix
             if not option_string[0] in self.prefix_chars:
                 msg = _('invalid option string %r: '
@@ -1407,18 +1401,12 @@ class _ActionsContainer(object):
                 tup = option_string, self.prefix_chars
                 raise ValueError(msg % tup)
 
-            # error on strings that are all prefix characters
-            if not (_set(option_string) - _set(self.prefix_chars)):
-                msg = _('invalid option string %r: '
-                        'must contain characters other than %r')
-                tup = option_string, self.prefix_chars
-                raise ValueError(msg % tup)
-
             # strings starting with two prefix characters are long options
             option_strings.append(option_string)
             if option_string[0] in self.prefix_chars:
-                if option_string[1] in self.prefix_chars:
-                    long_option_strings.append(option_string)
+                if len(option_string) > 1:
+                    if option_string[1] in self.prefix_chars:
+                        long_option_strings.append(option_string)
 
         # infer destination, '--foo-bar' -> 'foo_bar' and '-x' -> 'x'
         dest = kwargs.pop('dest', None)
@@ -1428,6 +1416,9 @@ class _ActionsContainer(object):
             else:
                 dest_option_string = option_strings[0]
             dest = dest_option_string.lstrip(self.prefix_chars)
+            if not dest:
+                msg = _('dest= is required for options like %r')
+                raise ValueError(msg % option_string)
             dest = dest.replace('-', '_')
 
         # return the updated keyword arguments
@@ -2043,14 +2034,14 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
         if not arg_string[0] in self.prefix_chars:
             return None
 
-        # if it's just dashes, it was meant to be positional
-        if not arg_string.strip('-'):
-            return None
-
         # if the option string is present in the parser, return the action
         if arg_string in self._option_string_actions:
             action = self._option_string_actions[arg_string]
             return action, arg_string, None
+
+        # if it's just a single character, it was meant to be positional
+        if len(arg_string) == 1:
+            return None
 
         # if the option string before the "=" is present, return the action
         if '=' in arg_string:

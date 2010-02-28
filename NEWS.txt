@@ -8,6 +8,7 @@ What's New in argparse 1.1
 - Issue #38: Better error messages when 'dest' occurs twice for positional arguments.
 - Issue #39: Better error messages for invalid actions.
 - Issue #43: Deprecate ArgumentParser(..., version=XXX, ...) and friends.
+- Issue #46: Allow single character options, e.g. '-' and '+'.
 - Namespace objects now support "in" (i.e. __contains__).
 - Usage and help (but not version) messages are written to stdout, not stderr.
 

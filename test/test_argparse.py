@@ -125,6 +125,7 @@ class NS(object):
 class ArgumentParserError(Exception):
 
     def __init__(self, message, stdout=None, stderr=None, error_code=None):
+        Exception.__init__(self, message, stdout, stderr)
         self.message = message
         self.stdout = stdout
         self.stderr = stderr
@@ -1201,6 +1202,25 @@ class TestEmptyAndSpaceContainingArguments(ParserTestCase):
         (['-y', '-a badger'], NS(x=None, y='-a badger')),
         (['--yyy=a badger'], NS(x=None, y='a badger')),
         (['--yyy=-a badger'], NS(x=None, y='-a badger')),
+    ]
+
+
+class TestPrefixCharacterOnlyArguments(ParserTestCase):
+
+    parser_signature = Sig(prefix_chars='-+')
+    argument_signatures = [
+        Sig('-', dest='x', nargs='?', const='badger'),
+        Sig('+', dest='y', type=int, default=42),
+        Sig('-+-', dest='z', action='store_true'),
+    ]
+    failures = ['-y', '+ -']
+    successes = [
+        ('', NS(x=None, y=42, z=False)),
+        ('-', NS(x='badger', y=42, z=False)),
+        ('- X', NS(x='X', y=42, z=False)),
+        ('+ -3', NS(x=None, y=-3, z=False)),
+        ('-+-', NS(x=None, y=42, z=True)),
+        ('- ===', NS(x='===', y=42, z=False)),
     ]
 
 
