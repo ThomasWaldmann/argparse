@@ -1178,6 +1178,9 @@ class Namespace(_AttributeHolder):
     def __ne__(self, other):
         return not (self == other)
 
+    def __contains__(self, key):
+        return key in self.__dict__
+
 
 class _ActionsContainer(object):
 
@@ -2294,9 +2297,13 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
     # Help-printing methods
     # =====================
     def print_usage(self, file=None):
+        if file is None:
+            file = _sys.stdout
         self._print_message(self.format_usage(), file)
 
     def print_help(self, file=None):
+        if file is None:
+            file = _sys.stdout
         self._print_message(self.format_help(), file)
 
     def print_version(self, file=None):

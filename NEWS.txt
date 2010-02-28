@@ -7,6 +7,8 @@ What's New in argparse 1.1
 - Issue #37: Stop treating two character alphanumeric flags as numbers.
 - Issue #38: Better error messages when 'dest' occurs twice for positional arguments.
 - Issue #39: Better error messages for invalid actions.
+- Namespace objects now support "in" (i.e. __contains__).
+- Usage and help (but not version) messages are written to stdout, not stderr.
 
 
 What's New in argparse 1.0.1
