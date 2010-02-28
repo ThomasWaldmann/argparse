@@ -621,6 +621,9 @@ class HelpFormatter(object):
         for name in list(params):
             if params[name] is SUPPRESS:
                 del params[name]
+        for name in list(params):
+            if hasattr(params[name], '__name__'):
+                params[name] = params[name].__name__
         if params.get('choices') is not None:
             choices_str = ', '.join([str(c) for c in params['choices']])
             params['choices'] = choices_str
@@ -1297,6 +1300,12 @@ class _ActionsContainer(object):
         if not _callable(action_class):
             raise ValueError('unknown action "%s"' % action_class)
         action = action_class(**kwargs)
+
+        # raise an error if the action type is not callable
+        type_func = self._registry_get('type', action.type, action.type)
+        if not _callable(type_func):
+            raise ValueError('%r is not callable' % type_func)
+
         return self._add_action(action)
 
     def add_argument_group(self, *args, **kwargs):

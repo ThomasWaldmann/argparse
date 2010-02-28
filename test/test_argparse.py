@@ -3300,7 +3300,7 @@ class TestHelpVariableExpansion(HelpTestCase):
 
     parser_signature = Sig(prog='PROG')
     argument_signatures = [
-        Sig('-x', type='int',
+        Sig('-x', type=int,
             help='x %(prog)s %(default)s %(type)s %%'),
         Sig('-y', action='store_const', default=42, const='XXX',
             help='y %(prog)s %(default)s %(const)s'),
@@ -3769,6 +3769,9 @@ class TestInvalidArgumentConstructors(TestCase):
     def test_invalid_option_strings(self):
         self.assertValueError('--')
         self.assertValueError('---')
+
+    def test_invalid_type(self):
+        self.assertValueError('--foo', type='int')
 
     def test_invalid_action(self):
         self.assertValueError('-x', action='foo')
