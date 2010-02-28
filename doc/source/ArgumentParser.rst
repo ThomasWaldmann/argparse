@@ -1,13 +1,12 @@
 ArgumentParser objects
 ======================
 
-.. class:: ArgumentParser([description], [epilog], [prog], [usage], [version], [add_help], [argument_default], [parents], [prefix_chars], [conflict_handler], [formatter_class])
+.. class:: ArgumentParser([description], [epilog], [prog], [usage], [add_help], [argument_default], [parents], [prefix_chars], [conflict_handler], [formatter_class])
 
    Create a new :class:`ArgumentParser` object. Each parameter has its own more detailed description below, but in short they are:
    
    * description_ - Text to display before the argument help.
    * epilog_ - Text to display after the argument help.
-   * version_ - A version number used to add a -v/--version option to the parser.
    * add_help_ - Add a -h/--help option to the parser. (default: True)
    * argument_default_ - Set the global default value for arguments. (default: None)
    * parents_ - A list of :class:ArgumentParser objects whose arguments should also be included.
@@ -57,24 +56,6 @@ Some programs like to display additional description of the program after the de
   And that's how you'd foo a bar
 
 As with the description_ argument, the ``epilog=`` text is by default line-wrapped, but this behavior can be adjusted with the formatter_class_ argument to ArgumentParser.
-
-
-version
--------
-
-Programs which want to display the program version at the command line can supply a version message as the ``version=`` argument to ArgumentParser. This will add a ``-v/--version`` option to the ArgumentParser that can be invoked to print the version string::
-
-  >>> parser = argparse.ArgumentParser(prog='PROG', version='%(prog)s 3.5')
-  >>> parser.print_help()
-  usage: PROG [-h] [-v]
-  
-  optional arguments:
-    -h, --help     show this help message and exit
-    -v, --version  show program's version number and exit
-  >>> parser.parse_args(['-v'])
-  PROG 3.5
-
-Note you can use the ``%(prog)s`` format specifier to insert the program name into the version string. For greater customization, see the documentation on the ``'version'`` action available for :meth:`add_argument`.
 
 
 add_help

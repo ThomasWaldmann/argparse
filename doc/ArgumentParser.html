@@ -52,12 +52,11 @@
 <dl class="class">
 <dt id="ArgumentParser">
 <em class="property">
-class </em><tt class="descname">ArgumentParser</tt><big>(</big><span class="optional">[</span><em>description</em><span class="optional">]</span><span class="optional">[</span>, <em>epilog</em><span class="optional">]</span><span class="optional">[</span>, <em>prog</em><span class="optional">]</span><span class="optional">[</span>, <em>usage</em><span class="optional">]</span><span class="optional">[</span>, <em>version</em><span class="optional">]</span><span class="optional">[</span>, <em>add_help</em><span class="optional">]</span><span class="optional">[</span>, <em>argument_default</em><span class="optional">]</span><span class="optional">[</span>, <em>parents</em><span class="optional">]</span><span class="optional">[</span>, <em>prefix_chars</em><span class="optional">]</span><span class="optional">[</span>, <em>conflict_handler</em><span class="optional">]</span><span class="optional">[</span>, <em>formatter_class</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#ArgumentParser" title="Permalink to this definition">¶</a></dt>
+class </em><tt class="descname">ArgumentParser</tt><big>(</big><span class="optional">[</span><em>description</em><span class="optional">]</span><span class="optional">[</span>, <em>epilog</em><span class="optional">]</span><span class="optional">[</span>, <em>prog</em><span class="optional">]</span><span class="optional">[</span>, <em>usage</em><span class="optional">]</span><span class="optional">[</span>, <em>add_help</em><span class="optional">]</span><span class="optional">[</span>, <em>argument_default</em><span class="optional">]</span><span class="optional">[</span>, <em>parents</em><span class="optional">]</span><span class="optional">[</span>, <em>prefix_chars</em><span class="optional">]</span><span class="optional">[</span>, <em>conflict_handler</em><span class="optional">]</span><span class="optional">[</span>, <em>formatter_class</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#ArgumentParser" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new <a title="ArgumentParser" class="reference internal" href="#ArgumentParser"><tt class="xref docutils literal"><span class="pre">ArgumentParser</span></tt></a> object. Each parameter has its own more detailed description below, but in short they are:</p>
 <ul class="simple">
 <li><a class="reference internal" href="#description">description</a> - Text to display before the argument help.</li>
 <li><a class="reference internal" href="#epilog">epilog</a> - Text to display after the argument help.</li>
-<li><a class="reference internal" href="#version">version</a> - A version number used to add a -v/&#8211;version option to the parser.</li>
 <li><a class="reference internal" href="#add-help">add_help</a> - Add a -h/&#8211;help option to the parser. (default: True)</li>
 <li><a class="reference internal" href="#argument-default">argument_default</a> - Set the global default value for arguments. (default: None)</li>
 <li><a class="reference internal" href="#parents">parents</a> - A list of :class:ArgumentParser objects whose arguments should also be included.</li>
@@ -104,22 +103,6 @@ class </em><tt class="descname">ArgumentParser</tt><big>(</big><span class="opti
 </pre></div>
 </div>
 <p>As with the <a class="reference internal" href="#description">description</a> argument, the <tt class="docutils literal"><span class="pre">epilog=</span></tt> text is by default line-wrapped, but this behavior can be adjusted with the <a class="reference internal" href="#formatter-class">formatter_class</a> argument to ArgumentParser.</p>
-</div>
-<div class="section" id="version">
-<h2>version<a class="headerlink" href="#version" title="Permalink to this headline">¶</a></h2>
-<p>Programs which want to display the program version at the command line can supply a version message as the <tt class="docutils literal"><span class="pre">version=</span></tt> argument to ArgumentParser. This will add a <tt class="docutils literal"><span class="pre">-v/--version</span></tt> option to the ArgumentParser that can be invoked to print the version string:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">prog</span><span class="o">=</span><span class="s">&#39;PROG&#39;</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s">&#39;</span><span class="si">%(prog)s</span><span class="s"> 3.5&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">print_help</span><span class="p">()</span>
-<span class="go">usage: PROG [-h] [-v]</span>
-
-<span class="go">optional arguments:</span>
-<span class="go">  -h, --help     show this help message and exit</span>
-<span class="go">  -v, --version  show program&#39;s version number and exit</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">([</span><span class="s">&#39;-v&#39;</span><span class="p">])</span>
-<span class="go">PROG 3.5</span>
-</pre></div>
-</div>
-<p>Note you can use the <tt class="docutils literal"><span class="pre">%(prog)s</span></tt> format specifier to insert the program name into the version string. For greater customization, see the documentation on the <tt class="docutils literal"><span class="pre">'version'</span></tt> action available for <a title="add_argument" class="reference external" href="add_argument.html#add_argument"><tt class="xref docutils literal"><span class="pre">add_argument()</span></tt></a>.</p>
 </div>
 <div class="section" id="add-help">
 <h2>add_help<a class="headerlink" href="#add-help" title="Permalink to this headline">¶</a></h2>
@@ -396,7 +379,6 @@ optional arguments:
 <li><a class="reference external" href="">ArgumentParser objects</a><ul>
 <li><a class="reference external" href="#description">description</a></li>
 <li><a class="reference external" href="#epilog">epilog</a></li>
-<li><a class="reference external" href="#version">version</a></li>
 <li><a class="reference external" href="#add-help">add_help</a></li>
 <li><a class="reference external" href="#prefix-chars">prefix_chars</a></li>
 <li><a class="reference external" href="#fromfile-prefix-chars">fromfile_prefix_chars</a></li>

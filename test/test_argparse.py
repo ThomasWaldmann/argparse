@@ -52,6 +52,21 @@ if sys.version_info[:2] == (2, 6):
         message='BaseException.message has been deprecated as of Python 2.6',
         category=DeprecationWarning)
 
+# silence warnings about version argument - these are expected
+import warnings
+warnings.filterwarnings(
+    action='ignore',
+    message='The "version" argument to ArgumentParser is deprecated.',
+    category=DeprecationWarning)
+warnings.filterwarnings(
+    action='ignore',
+    message='The format_version method is deprecated',
+    category=DeprecationWarning)
+warnings.filterwarnings(
+    action='ignore',
+    message='The print_version method is deprecated',
+    category=DeprecationWarning)
+
 
 class TestCase(unittest.TestCase):
 
