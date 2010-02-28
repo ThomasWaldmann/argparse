@@ -4086,8 +4086,8 @@ class TestNamespace(TestCase):
 class TestEncoding(TestCase):
 
     def _test_module_encoding(self, path):
-        if path.endswith('.pyc'):
-            path = path[:-1]
+        path, _ = os.path.splitext(path)
+        path += ".py"
         codecs.open(path, 'r', 'utf8').read()
 
     def test_argparse_module_encoding(self):
