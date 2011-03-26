@@ -34,7 +34,8 @@ class TestCase(unittest.TestCase):
         # variable.  To ensure that this assumption is true, unset COLUMNS.
         env = test_support.EnvironmentVarGuard()
         env.unset("COLUMNS")
-        self.addCleanup(env.__exit__)
+        #this only works on python >= 2.7:
+        #self.addCleanup(env.__exit__)
 
 
 class TempDirMixin(object):
@@ -2127,7 +2128,7 @@ class TestParentParsers(TestCase):
         parser = ErrorRaisingArgumentParser(parents=parents)
         parser_help = parser.format_help()
         self.assertEqual(parser_help, textwrap.dedent('''\
-            usage: {} [-h] [-b B] [--d D] [--w W] [-y Y] a z
+            usage: %(prog)s [-h] [-b B] [--d D] [--w W] [-y Y] a z
 
             positional arguments:
               a
@@ -2143,7 +2144,7 @@ class TestParentParsers(TestCase):
 
             x:
               -y Y
-        '''.format(self.main_program)))
+        ''' % dict(prog=self.main_program)))
 
     def test_groups_parents(self):
         parent = ErrorRaisingArgumentParser(add_help=False)
@@ -2160,7 +2161,7 @@ class TestParentParsers(TestCase):
 
         parser_help = parser.format_help()
         self.assertEqual(parser_help, textwrap.dedent('''\
-            usage: {} [-h] [-w W] [-x X] [-y Y | -z Z]
+            usage: %(prog)s [-h] [-w W] [-x X] [-y Y | -z Z]
 
             optional arguments:
               -h, --help  show this help message and exit
@@ -2172,7 +2173,7 @@ class TestParentParsers(TestCase):
 
               -w W
               -x X
-        '''.format(self.main_program)))
+        ''' % dict(prog=self.main_program)))
 
 # ==============================
 # Mutually exclusive group tests
