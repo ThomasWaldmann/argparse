@@ -2221,7 +2221,8 @@ class TestMutuallyExclusiveGroupErrors(TestCase):
               --soup
               --nuts
               '''
-        self.assertEqual(parser.format_help(), textwrap.dedent(expected))
+        # note: .rstrip(' ') fixes different behaviour of py 2.4 textwrap.dedent
+        self.assertEqual(parser.format_help(), textwrap.dedent(expected).rstrip(' '))
 
 class MEMixin(object):
 

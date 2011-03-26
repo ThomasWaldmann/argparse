@@ -90,6 +90,12 @@ import textwrap as _textwrap
 
 from gettext import gettext as _
 
+try:
+    set
+except NameError:
+    # for python < 2.5 compatibility (sets module is there since 2.3):
+    from sets import Set as set
+
 
 def _callable(obj):
     return hasattr(obj, '__call__') or hasattr(obj, '__bases__')
@@ -1582,7 +1588,10 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
 
         # add help and version arguments if necessary
         # (using explicit default to override global argument_default)
-        default_prefix = '-' if '-' in prefix_chars else prefix_chars[0]
+        if '-' in prefix_chars:
+            default_prefix = '-'
+        else:
+            default_prefix = prefix_chars[0]
         if self.add_help:
             self.add_argument(
                 default_prefix+'h', default_prefix*2+'help',
