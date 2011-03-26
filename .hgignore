@@ -1,0 +1,10 @@
+.*\.py[co]$
+^dist/
+^env/
+^argparse.egg-info/
+^docs/_build/
+^MANIFEST$
+.DS_Store
+.orig$
+.rej$
+.~$
