@@ -15,7 +15,22 @@ from StringIO import StringIO
 class StdIOBuffer(StringIO):
     pass
 
-from test import test_support
+
+# silence some warnings - these are expected
+import warnings
+warnings.filterwarnings(
+    action='ignore',
+    message='The "version" argument to ArgumentParser is deprecated.',
+    category=DeprecationWarning)
+warnings.filterwarnings(
+    action='ignore',
+    message='The format_version method is deprecated',
+    category=DeprecationWarning)
+warnings.filterwarnings(
+    action='ignore',
+    message='The print_version method is deprecated',
+    category=DeprecationWarning)
+
 
 class TestCase(unittest.TestCase):
 
@@ -27,15 +42,6 @@ class TestCase(unittest.TestCase):
             print(obj1)
             print(obj2)
         super(TestCase, self).assertEqual(obj1, obj2)
-
-    def setUp(self):
-        # The tests assume that line wrapping occurs at 80 columns, but this
-        # behaviour can be overridden by setting the COLUMNS environment
-        # variable.  To ensure that this assumption is true, unset COLUMNS.
-        env = test_support.EnvironmentVarGuard()
-        env.unset("COLUMNS")
-        #this only works on python >= 2.7:
-        #self.addCleanup(env.__exit__)
 
 
 class TempDirMixin(object):
@@ -4247,8 +4253,11 @@ class TestEncoding(TestCase):
     def _test_module_encoding(self, path):
         path, _ = os.path.splitext(path)
         path += ".py"
-        with codecs.open(path, 'r', 'utf8') as f:
+        f = codecs.open(path, 'r', 'utf8')
+        try:
             f.read()
+        finally:
+            f.close
 
     def test_argparse_module_encoding(self):
         self._test_module_encoding(argparse.__file__)
@@ -4332,19 +4341,6 @@ class TestImportStar(TestCase):
         ]
         self.assertEqual(sorted(items), sorted(argparse.__all__))
 
-def test_main():
-    # silence warnings about version argument - these are expected
-    with test_support.check_warnings(
-            ('The "version" argument to ArgumentParser is deprecated.',
-             DeprecationWarning),
-            ('The (format|print)_version method is deprecated',
-             DeprecationWarning)):
-        test_support.run_unittest(__name__)
-    # Remove global references to avoid looking like we have refleaks.
-    RFile.seen = {}
-    WFile.seen = set()
-
-
 
 if __name__ == '__main__':
-    test_main()
+    unittest.main()
