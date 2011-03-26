@@ -1,0 +1,12 @@
+include README.txt LICENSE.txt
+
+recursive-include doc *
+
+global-exclude *.pyc
+global-exclude *.pyo
+global-exclude *.orig
+global-exclude *.rej
+
+prune docs/_build
+prune env
+
