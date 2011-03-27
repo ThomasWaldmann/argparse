@@ -20,7 +20,7 @@ setup_args = dict(
     keywords="argparse command line parser parsing",
     platforms="any",
     classifiers="""\
-Development Status :: 6 - Production/Stable
+Development Status :: 5 - Production/Stable
 Environment :: Console
 Intended Audience :: Developers
 License :: OSI Approved :: Python Software Foundation License
