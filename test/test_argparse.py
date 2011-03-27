@@ -16,6 +16,23 @@ class StdIOBuffer(StringIO):
     pass
 
 
+try:
+    set
+except NameError:
+    # for python < 2.4 compatibility (sets module is there since 2.3):
+    from sets import Set as set
+
+try:
+    sorted
+except NameError:
+    # for python < 2.4 compatibility:
+    def sorted(iterable, reverse=False):
+        result = list(iterable)
+        result.sort()
+        if reverse:
+            result.reverse()
+        return result
+
 # silence some warnings - these are expected
 import warnings
 warnings.filterwarnings(
@@ -42,6 +59,12 @@ class TestCase(unittest.TestCase):
             print(obj1)
             print(obj2)
         super(TestCase, self).assertEqual(obj1, obj2)
+
+    # Python 2.3 does not have unittest.TestCase.assertTrue:
+    def assertTrue(self, expr, msg=None):
+        if not expr:
+            msg = self._formatMessage(msg, "%s is not True" % safe_repr(expr))
+            raise self.failureException(msg)
 
 
 class TempDirMixin(object):
@@ -4340,6 +4363,7 @@ class TestImportStar(TestCase):
             if not name.startswith("_")
             if not inspect.ismodule(value)
         ]
+        # this will fail on python 2.3 due to "set" and "sorted":
         self.assertEqual(sorted(items), sorted(argparse.__all__))
 
 
