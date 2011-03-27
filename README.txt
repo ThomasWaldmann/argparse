@@ -13,3 +13,33 @@ module in the standard library, but also supports older Python versions.
 
 argparse is licensed under the Python license, for details see LICENSE.txt.
 
+
+Compatibility
+-------------
+
+argparse should work on Python >= 2.3 (it was tested on 2.3.5, 2.4.4, 2.5.5
+and 2.6.5 and 2.7).
+
+
+Installation
+------------
+
+Try one of these:
+
+    python setup.py install
+
+    easy_install argparse
+
+    pip install argparse
+
+    putting argparse.py in some directory listed in sys.path should also work
+
+
+Bugs
+----
+
+If you find a bug, please try to reproduce it with python 2.7.
+
+If it happens there also, please file a bug in the python.org issue tracker.
+If it does not happen in 2.7, file a bug in the argparse package issue tracker.
+
