@@ -1,6 +1,9 @@
 .*\.py[co]$
 ^dist/
-^env/
+^env24/
+^env25/
+^env26/
+^env27/
 ^argparse.egg-info/
 ^doc/_build/
 ^MANIFEST$
