@@ -7,6 +7,9 @@ global-exclude *.pyo
 global-exclude *.orig
 global-exclude *.rej
 
-prune docs/_build
-prune env
+prune doc/_build
+prune env24
+prune env25
+prune env26
+prune env27
 
