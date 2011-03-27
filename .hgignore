@@ -2,7 +2,7 @@
 ^dist/
 ^env/
 ^argparse.egg-info/
-^docs/_build/
+^doc/_build/
 ^MANIFEST$
 .DS_Store
 .orig$
