@@ -10,7 +10,10 @@ import tempfile
 import unittest
 import argparse
 
-from StringIO import StringIO
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 
 class StdIOBuffer(StringIO):
     pass
@@ -4364,6 +4367,7 @@ class TestImportStar(TestCase):
             if not inspect.ismodule(value)
         ]
         # this will fail on python 2.3 due to "set" and "sorted":
+        # this will fail on python 3.1 due to "basestring"
         self.assertEqual(sorted(items), sorted(argparse.__all__))
 
 
