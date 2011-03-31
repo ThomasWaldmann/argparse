@@ -21,7 +21,7 @@ Compatibility
 argparse should work on Python >= 2.3, it was tested on:
 
 * 2.3.5, 2.4.4, 2.5.5, 2.6.5 and 2.7
-* 3.1
+* 3.1, 3.2
 
 
 Installation
