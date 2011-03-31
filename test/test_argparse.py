@@ -4366,8 +4366,13 @@ class TestImportStar(TestCase):
             if not name.startswith("_")
             if not inspect.ismodule(value)
         ]
-        # this will fail on python 2.3 due to "set" and "sorted":
-        # this will fail on python 3.1 due to "basestring"
+        # ignore "set" and "sorted" on python 2.3:
+        if sys.version_info[:2] == (2, 3):
+            items.remove("set")
+            items.remove("sorted")
+        # ignore "basestring" on python 3.x:
+        if sys.version_info[:2] >= (3, 0):
+            items.remove("basestring")
         self.assertEqual(sorted(items), sorted(argparse.__all__))
 
 
