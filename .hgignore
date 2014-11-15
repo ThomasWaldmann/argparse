@@ -1,4 +1,5 @@
 .*\.py[co]$
+^build/
 ^dist/
 ^env24/
 ^env25/

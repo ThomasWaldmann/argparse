@@ -1,6 +1,13 @@
 What's New
 ==========
 
+argparse 1.2.2
+--------------
+
+- added universal wheel support, built, signed and uploaded with:
+  python setup.py sdist bdist_wheel upload --identity="Thomas Waldmann" --sign
+- host the files on pypi
+
 argparse 1.2.1
 --------------
 

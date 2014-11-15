@@ -14,7 +14,6 @@ setup_args = dict(
     long_description=long_description,
     author="Steven Bethard",
     author_email="steven.bethard@gmail.com",
-    download_url="http://argparse.googlecode.com/files/argparse-%s.tar.gz" % (argparse.__version__, ),
     url="http://code.google.com/p/argparse/",
     license="Python Software Foundation License",
     keywords="argparse command line parser parsing",
