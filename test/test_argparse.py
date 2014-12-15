@@ -10,6 +10,8 @@ import tempfile
 import unittest
 import argparse
 
+assert getattr(argparse, '__external_lib__', False)  # fail early if we test the wrong lib
+
 try:
     from StringIO import StringIO
 except ImportError:
