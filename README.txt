@@ -1,3 +1,22 @@
+Important Note about the PyPi argparse package
+----------------------------------------------
+argparse development happens in the python standard library nowadays, NOT HERE.
+
+The PyPi argparse package is mostly for people who want to have argparse on
+older Pythons, like < 2.7 or < 3.2 because it was not in stdlib back then.
+
+Thus, do not file issues, feature requests or pull requests for the PyPi
+version of argparse if they also apply to standard library argparse.
+
+If you find a bug in argparse (PyPi), please try to reproduce it with latest
+python 2.7 and 3.4/3.5 (and use argparse from stdlib).
+
+If it happens there also, please file a bug in the python.org issue tracker.
+If it does not happen there, file a bug in the argparse package issue tracker.
+
+
+About argparse
+--------------
 The argparse module makes it easy to write user friendly command line
 interfaces.
 
@@ -41,13 +60,4 @@ Try one of these:
 
     putting argparse.py in some directory listed in sys.path should also work
 
-
-Bugs
-----
-
-If you find a bug in argparse (pypi), please try to reproduce it with latest
-python 2.7 and 3.4 (and use argparse from stdlib).
-
-If it happens there also, please file a bug in the python.org issue tracker.
-If it does not happen there, file a bug in the argparse package issue tracker.
 
