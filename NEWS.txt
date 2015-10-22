@@ -1,6 +1,10 @@
 What's New
 ==========
 
+argparse 1.4.1
+--------------
+- fix issue #12353 argparse cannot handle empty arguments
+
 argparse 1.4.0
 --------------
 
