@@ -1592,8 +1592,8 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
             import warnings
             warnings.warn(
                 """The "version" argument to ArgumentParser is deprecated. """
-                """Please use """
-                """"add_argument(..., action='version', version="N", ...)" """
+                """Please use"""
+                """ "add_argument(..., action='version', version="N", ...)" """
                 """instead""", DeprecationWarning)
 
         superinit = super(ArgumentParser, self).__init__
