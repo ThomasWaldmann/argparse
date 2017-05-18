@@ -9,11 +9,12 @@ import textwrap
 import tempfile
 import unittest
 import argparse
+import six
 
 assert getattr(argparse, '__external_lib__', False)  # fail early if we test the wrong lib
 
 try:
-    from StringIO import StringIO
+    from six.moves.StringIO import StringIO
 except ImportError:
     from io import StringIO
 
@@ -59,8 +60,8 @@ class TestCase(unittest.TestCase):
     def assertEqual(self, obj1, obj2):
         if obj1 != obj2:
             print('')
-            print(repr(obj1))
-            print(repr(obj2))
+            six.print_((repr(obj1)))
+            six.print_((repr(obj2)))
             print(obj1)
             print(obj2)
         super(TestCase, self).assertEqual(obj1, obj2)
@@ -665,7 +666,7 @@ class TestOptionalsChoices(ParserTestCase):
 
     argument_signatures = [
         Sig('-f', choices='abc'),
-        Sig('-g', type=int, choices=range(5))]
+        Sig('-g', type=int, choices=list(range(5)))]
     failures = ['a', '-f d', '-fad', '-ga', '-g 6']
     successes = [
         ('', NS(f=None, g=None)),
@@ -1168,7 +1169,7 @@ class TestPositionalsChoicesString(ParserTestCase):
 class TestPositionalsChoicesInt(ParserTestCase):
     """Test a set of integer choices"""
 
-    argument_signatures = [Sig('spam', type=int, choices=range(20))]
+    argument_signatures = [Sig('spam', type=int, choices=list(range(20)))]
     failures = ['', '--foo', 'h', '42', 'ef']
     successes = [
         ('4', NS(spam=4)),
@@ -1987,8 +1988,8 @@ class TestAddSubparsers(TestCase):
         except ArgumentParserError:
             err = sys.exc_info()[1]
             if err.stdout != expected_help:
-                print(repr(expected_help))
-                print(repr(err.stdout))
+                six.print_((repr(expected_help)))
+                six.print_((repr(err.stdout)))
             self.assertEqual(err.stdout, expected_help)
 
     def test_subparser1_help(self):
@@ -2871,11 +2872,11 @@ class TestHelpFormattingMetaclass(type):
                 expected_text = getattr(tester, self.func_suffix)
                 expected_text = textwrap.dedent(expected_text)
                 if expected_text != parser_text:
-                    print(repr(expected_text))
-                    print(repr(parser_text))
+                    six.print_((repr(expected_text)))
+                    six.print_((repr(parser_text)))
                     for char1, char2 in zip(expected_text, parser_text):
                         if char1 != char2:
-                            print('first diff: %r %r' % (char1, char2))
+                            six.print_(('first diff: %r %r' % (char1, char2)))
                             break
                 tester.assertEqual(expected_text, parser_text)
 
