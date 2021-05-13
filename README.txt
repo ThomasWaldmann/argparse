@@ -1,3 +1,13 @@
+This repo is archived now and completely unsupported
+----------------------------------------------------
+
+All python versions addressed by this code are out of support since long.
+
+DO NOT WRITE EMAIL TO ME ABOUT THIS REPO, I WILL NOT RESPOND.
+
+For details about this, just read the text below.
+
+
 Important Note about the PyPi argparse package
 ----------------------------------------------
 argparse development happens in the python standard library nowadays, NOT HERE.
